@@ -39,7 +39,7 @@ class LoginPage extends Component {
 
     componentDidMount() {
         fetchAjax(
-            'http://localhost:80/back-end/API/auth/login/',
+            'http://localhost:80/szakdolgozat/back-end/API/auth/login/',
             {
                 method: 'GET',
                 credentials: 'include',

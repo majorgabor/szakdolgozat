@@ -7,6 +7,7 @@ import LoginPage from './views/loginPage.js';
 import SignupPage from './views/signupPage.js';
 import LogoutPage from './views/logoutPage.js';
 import AccountPage from './views/accountPage.js';
+import GamePage from './views/gamePage.js';
 import PageNotFound from './views/pageNotFound.js';
 
 class App extends Component {
@@ -34,6 +35,7 @@ class App extends Component {
                 <Route path='/signup' component={SignupPage} />
                 <Route path='/logout' component={LogoutPage} />
                 <Route path='/account' component={AccountPage} />
+                <Route path='/game' component={GamePage} />
                 <Route component={PageNotFound} />
             </Switch>
         );

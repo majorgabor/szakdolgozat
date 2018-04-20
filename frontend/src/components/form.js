@@ -54,7 +54,7 @@ class Form extends Component {
             loading: true,
         });
         fetchAjax(
-            'http://localhost:80/back-end/API/' + this.props.fetchURL,
+            'http://localhost:80/szakdolgozat/back-end/API/' + this.props.fetchURL,
             {
                 method: 'POST',
                 credentials: 'include',

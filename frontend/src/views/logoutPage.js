@@ -31,7 +31,7 @@ class LogoutPage extends Component {
 
     componentDidMount() {
         fetchAjax(
-            'http://localhost:80/back-end/API/auth/logout/',
+            'http://localhost:80/szakdolgozat/back-end/API/auth/logout/',
             {
                 method: 'GET',
                 credentials: 'include',
