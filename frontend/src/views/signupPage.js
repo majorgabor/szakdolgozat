@@ -36,7 +36,7 @@ class SignupPage extends Component {
 
     componentDidMount() {
         fetchAjax(
-            'http://localhost:80/back-end/API/signup/',
+            'http://localhost:80/szakdolgozat/back-end/API/signup/',
             {
                 method: 'GET',
                 credentials: 'include',

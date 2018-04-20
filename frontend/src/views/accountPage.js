@@ -45,7 +45,7 @@ class AccountPage extends Component {
 
     componentDidMount() {
         fetchAjax(
-            'http://localhost:80/back-end/API/account/',
+            'http://localhost:80/szakdolgozat/back-end/API/account/',
             {
                 method: 'GET',
                 credentials: 'include',

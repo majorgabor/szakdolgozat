@@ -31,7 +31,7 @@ class IndexPage extends Component {
 
     componentDidMount() {
         fetchAjax(
-            'http://localhost:80/back-end/API/',
+            'http://localhost:80/szakdolgozat/back-end/API/',
             {
                 method: 'GET',
                 credentials: 'include',
