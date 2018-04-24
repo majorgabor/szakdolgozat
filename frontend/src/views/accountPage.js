@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
-import { Redirect } from 'react-router-dom';
-import { fetchAjax } from '../actions/fetchAjax';
+import { Redirect, Link } from 'react-router-dom';
+import $ from 'jquery';
+import { fetchAjax } from '../actions/fetchAjax.js';
+import { socket, joinToMatchMaking, abortMatchMaking,  battleRequestAnswer } from '../actions/wsclient.js';
 
 import NavBar from '../components/navBar.js';
 import VerticalPills from '../components/verticalPills.js';
 import DataPanel from '../components/dataPanel.js';
 import Form from '../components/form.js';
+import Modal from '../components/modal.js';
 import Loading from '../components/loading.js';
 
 import { modifyFormFields, changePasswordFormFields } from '../constants/accountFormInputs.js';
@@ -20,6 +23,7 @@ class AccountPage extends Component {
             error: null,
             responseCode: null,
             userInfo: {},
+            redirect: false,
         };
         this.refresh = this.refresh.bind(this);
     }
@@ -52,6 +56,12 @@ class AccountPage extends Component {
             },
             this.onAjaxsuccess()
         );
+        socket.on('startGame', (data) => {
+            $('#close-matchmakingModal').click();
+            this.setState({
+                redirect: true,
+            });
+        });
     }
 
     setModifyFormFieldsPlaceholder() {
@@ -63,10 +73,15 @@ class AccountPage extends Component {
     }
 
     render() {
-        const { isLoaded, error, responseCode, userInfo } = this.state;
+        const { isLoaded, error, responseCode, userInfo, redirect, exitModal } = this.state;
         if(responseCode && (responseCode === 401 || responseCode === 405)) {
             return (
                 <Redirect to='/login' />
+            );
+        }
+        if(redirect) {
+            return (
+                <Redirect data-dismiss="modal" to='/game' />
             );
         }
         const navBarProps = {
@@ -121,21 +136,50 @@ class AccountPage extends Component {
                 body: (<Form {...passwordChangeFormProps}/>),
             }
         ];
+        const modalProps = {
+            name: 'matchmakingModal',
+            title: 'Match Making',
+            body: (
+                <div>
+                    <div id="abortMatchMaking">
+                        <p id="numberOfWaitingUser"></p>
+                        <button onClick={abortMatchMaking} type="button" className="btn btn-danger" data-dismiss="modal">Abourt Match Make</button>
+                    </div>
+                    <div>
+                        <div id="battleRequest">
+                            <p id="enemy"></p>
+                            <button onClick={battleRequestAnswer(true)} id="accept" type="button" className="btn btn-success">Accept</button>
+                            <button onClick={battleRequestAnswer(false, userInfo.username)} id="discard" type="button" className="btn btn-danger">Discard</button>
+                        </div>
+                    </div>
+                </div>
+            ),
+            footer: (<div id="matchmakingModal-footer"></div>)
+        };
         if(!isLoaded) {
             return (
                 <Loading />
             );
         } else {
             return (
-                <div>
+                <div id="account">
                     <NavBar {...navBarProps} />
                     <div className="card offset-xl-2 col-xl-8 offset-gl-1 col-gl-10">
                         <div className="card-body">
-                            <button className="btn btn-primary btn-lg">Start game</button>
+                            <button
+                                onClick={joinToMatchMaking(userInfo.username)}
+                                className="btn btn-primary btn-lg"
+                                data-toggle="modal"
+                                data-target={"#"+modalProps.name}
+                                data-backdrop="static"
+                                data-keyboard="false">
+                                    Start game
+                            </button>
                             <p>Play now for free!</p>
                         </div>
                     </div>
                     <VerticalPills tabs={varticalPillsProps} />
+                    <Modal {...modalProps} />
                 </div>
             );
         }

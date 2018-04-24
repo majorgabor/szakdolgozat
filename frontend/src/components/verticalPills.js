@@ -16,12 +16,12 @@ class VerticalPills extends Component {
                                         <a
                                             key={i}
                                             className={className}
-                                            id={"v-pills-"+tab.name+"-tab"}
+                                            id={'v-pills-'+tab.name+'-tab'}
                                             data-toggle="pill"
-                                            href={"#v-pills-"+tab.name}
+                                            href={'#v-pills-'+tab.name}
                                             role="tab"
-                                            aria-controls={"v-pills-"+tab.name}
-                                            aria-selected={""+ i === 0 }>
+                                            aria-controls={'v-pills-'+tab.name}
+                                            aria-selected={''+ i === 0 }>
                                                 {tab.name.charAt(0).toUpperCase() + tab.name.slice(1)}
                                         </a>
                                     );
@@ -37,9 +37,9 @@ class VerticalPills extends Component {
                                         <div
                                             key={i}
                                             className={className}
-                                            id={"v-pills-"+tab.name}
+                                            id={'v-pills-'+tab.name}
                                             role="tabpanel"
-                                            aria-labelledby={"v-pills-"+tab.name+"-tab"}>
+                                            aria-labelledby={'v-pills-'+tab.name+'-tab'}>
                                                 {tab.body}
                                         </div>                                        
                                     );

@@ -77,7 +77,7 @@ class LoginPage extends Component {
                     <NavBar {...navBarProps} />
                     <div id="first_row" className="row">
                         <div id="grid_style" className="offset-xl-3 col-xl-6 offset-lg-2 col-lg-8 offset-md-1 col-md-10 col-sm-12 col-12">
-                            {message && <InfoPanel text={message} />}
+                            {message && <InfoPanel text={message} isCloseable={true} />}
                             <div className="jumbotron">
                                 <Form {...formProps} />
                             </div>
