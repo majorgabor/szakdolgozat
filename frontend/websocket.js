@@ -61,7 +61,7 @@ io.on('connection', (client) => {
             }
         } else {
             pairs[client.enemyPairIndex].accepted = false;
-            pairs[client.enemyPairIndex].emit('enemyDiscarded', pairs[client.enemyPairIndex].username);
+            pairs[client.enemyPairIndex].emit('enemyDiscarded', null);
             
             pairs.splice(client.enemyPairIndex, 1);
             pairs.splice(pairs.indexOf(client), 1);
@@ -104,7 +104,7 @@ io.on('connection', (client) => {
 
     //leave game
     client.on('userExit', () => {
-        console.log('%s left the game', client.username );
+        console.log('%s left the game. his enemy was %s', client.username, pairs[client.enemyPairIndex].username);
         pairs[client.enemyPairIndex].emit('enemyLeftGame', null);
         
         pairs.splice(client.enemyPairIndex, 1);
@@ -112,7 +112,7 @@ io.on('connection', (client) => {
     });
 
     //leave matchmaking
-    client.on('abortMatchMaking', () => {
+    client.on('leaveMatchMaking', () => {
         console.log('%s is leaving the matchmaking', client.username);
         matchMake.splice(matchMake.indexOf(client), 1);
         sendNumberOfWaitingUser();

@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { Redirect, Link } from 'react-router-dom';
-import $ from 'jquery';
+import { Redirect } from 'react-router-dom';
 import { fetchAjax } from '../actions/fetchAjax.js';
-import { socket, joinToMatchMaking, abortMatchMaking,  battleRequestAnswer } from '../actions/wsclient.js';
+import { socket } from '../actions/wsclient.js';
 
 import NavBar from '../components/navBar.js';
 import VerticalPills from '../components/verticalPills.js';
@@ -11,43 +10,26 @@ import Form from '../components/form.js';
 import Modal from '../components/modal.js';
 import Loading from '../components/loading.js';
 
-import { modifyFormFields, changePasswordFormFields } from '../constants/accountFormInputs.js';
+import PageStatus from '../enums/accountPageStatus.js';
+import * as AccountPageConstants from '../constants/accountPageConstants.js';
 
 class AccountPage extends Component {
 
     constructor(props){
         super(props);
-
         this.state = {
-            isLoaded: false,
-            error: null,
-            responseCode: null,
+            pageStatus: PageStatus.loading,
             userInfo: {},
-            redirect: false,
+            enemy: null,
+            matchMakingCounter: 0,
+            requestInfoText: null,
         };
         this.refresh = this.refresh.bind(this);
+        this.startGame = this.startGame.bind(this);
+        this.leaveMatchMaking = this.leaveMatchMaking.bind(this);
     }
 
     refresh() {
-        this.componentDidMount();
-    }
-
-    onAjaxsuccess() {
-        return (response) => {
-            if(Number.isInteger(response)) {
-                this.setState({
-                    responseCode: response,
-                });
-            } else {
-                this.setState({
-                    isLoaded: true,
-                    userInfo: response,
-                });
-            }
-        };
-    }
-
-    componentDidMount() {
         fetchAjax(
             'http://localhost:80/szakdolgozat/back-end/API/account/',
             {
@@ -56,16 +38,90 @@ class AccountPage extends Component {
             },
             this.onAjaxsuccess()
         );
-        socket.on('startGame', (data) => {
-            $('#close-matchmakingModal').click();
+    }
+
+    onAjaxsuccess() {
+        return (response) => {
+            if(Number.isInteger(response)) {
+                this.setState({
+                    pageStatus: PageStatus.redirectToLogin,
+                });
+            } else {
+                this.setState({
+                    pageStatus: PageStatus.pageReady,
+                    userInfo: response,
+                });
+            }
+        };
+    }
+
+    componentDidMount() {
+        console.log('component mounted');
+        this.refresh()
+        socket.on('numberOfWaitingUser', (data) => {
             this.setState({
-                redirect: true,
+                matchMakingCounter: data,
+            });
+        });
+        socket.on('enemyFound', (data) => {
+            this.setState({
+                pageStatus: PageStatus.battleRequest,
+                enemy: data
+            });
+            // mainCounter(10, 'matchmakingModal-footer', () => {
+            //     battleRequestAnswer(false);
+            // });
+        });
+        socket.on('enemyDiscarded', (data) => {
+            // clearInterval(counter);
+            this.setState({
+                pageStatus: PageStatus.requestInfo,
+                requestInfoText: 'Your enemy discarded.',
+            });
+            setTimeout(function() {
+                console.log('startfrom-enemydiscarded');
+                this.startGame();
+            }.bind(this), 2500);
+        });
+        socket.on('startGame', (data) => {
+            this.setState({
+                pageStatus: PageStatus.redirectToGame,
             });
         });
     }
 
+    startGame() {
+        this.setState({
+            pageStatus: PageStatus.matchmaking,
+        });
+        socket.emit('joinToMatchMaking', this.state.userInfo.username);
+    }
+
+    leaveMatchMaking() {
+        this.setState({
+            pageStatus: PageStatus.pageReady,
+        });
+        socket.emit('leaveMatchMaking', null);
+    }
+
+    battleRequestAnswer(answer) {
+        return () => {
+            socket.emit('battleRequestAnswer', answer);
+            // clearInterval(counter);
+            if(answer) {
+                this.setState({
+                    pageStatus: PageStatus.requestInfo,
+                    requestInfoText: 'Waiting for your enemy answer.',
+                });
+            } else {
+                console.log('startfrom-idiscarded');                
+                this.startGame();
+            }
+        }
+    }
+
     setModifyFormFieldsPlaceholder() {
-        let setted = modifyFormFields;
+        let setted = AccountPageConstants.modifyFormFields;
         setted[0].placeholder = this.state.userInfo.firstname;
         setted[1].placeholder = this.state.userInfo.lastname;
         setted[2].placeholder = this.state.userInfo.username;        
@@ -73,21 +129,24 @@ class AccountPage extends Component {
     }
 
     render() {
-        const { isLoaded, error, responseCode, userInfo, redirect, exitModal } = this.state;
-        if(responseCode && (responseCode === 401 || responseCode === 405)) {
+        const { pageStatus, userInfo, enemy, matchMakingCounter, requestInfoText } = this.state;
+        if(pageStatus === PageStatus.loading) {
+            return (
+                <Loading />
+            );
+        }
+        if(pageStatus === PageStatus.backToLogin) {
             return (
                 <Redirect to='/login' />
             );
         }
-        if(redirect) {
+        if(pageStatus === PageStatus.redirectToGame) {
             return (
-                <Redirect data-dismiss="modal" to='/game' />
+                <Redirect to='/game' />
             );
         }
-        const navBarProps = {
-            page: 'account',
-            user: userInfo.username,
-        };
+
+        AccountPageConstants.navBarProps.user = userInfo.username;
         const profileData = {
             name: userInfo.firstname+' '+userInfo.lastname,
             username: userInfo.username,
@@ -97,89 +156,87 @@ class AccountPage extends Component {
             battles: userInfo.battles,
             wins: userInfo.wins,
             points: userInfo.points,
-        }
-        const modifyFormProps = {
-            fetchURL: 'account/modify.php',
-            redirectURL: null,
-            title: 'Modify Data',
-            submitText: 'Modify',
-            fields: this.setModifyFormFieldsPlaceholder(),
-            checkBoxs: null,
-        }
-        const passwordChangeFormProps = {
-            fetchURL: 'account/changepw.php',
-            redirectURL: null,
-            title: 'Change Password',
-            submitText: 'Change',
-            fields: changePasswordFormFields,
-            checkBoxs: null,
         };
-        const varticalPillsProps = [
-            {
-                name: 'profile',
-                body: (<DataPanel data={profileData} />),
-            },
-            {
-                name: 'statistic',
-                body: (<DataPanel data={statisticData} />),
-            },
-            {
-                name: 'modify',
-                body: (
-                    <Form 
-                        triggerRefresh={this.refresh}
-                        {...modifyFormProps}/>
-                    ),
-            },
-            {
-                name: 'passwordchange',
-                body: (<Form {...passwordChangeFormProps}/>),
-            }
-        ];
-        const modalProps = {
-            name: 'matchmakingModal',
-            title: 'Match Making',
-            body: (
-                <div>
-                    <div id="abortMatchMaking">
-                        <p id="numberOfWaitingUser"></p>
-                        <button onClick={abortMatchMaking} type="button" className="btn btn-danger" data-dismiss="modal">Abourt Match Make</button>
-                    </div>
-                    <div>
-                        <div id="battleRequest">
-                            <p id="enemy"></p>
-                            <button onClick={battleRequestAnswer(true)} id="accept" type="button" className="btn btn-success">Accept</button>
-                            <button onClick={battleRequestAnswer(false, userInfo.username)} id="discard" type="button" className="btn btn-danger">Discard</button>
-                        </div>
-                    </div>
-                </div>
-            ),
-            footer: (<div id="matchmakingModal-footer"></div>)
-        };
-        if(!isLoaded) {
-            return (
-                <Loading />
-            );
-        } else {
+        AccountPageConstants.modifyFormProps.fields = this.setModifyFormFieldsPlaceholder();
+        AccountPageConstants.varticalPillsProps[0].body = (<DataPanel data={profileData} />);
+        AccountPageConstants.varticalPillsProps[1].body = (<DataPanel data={statisticData} />);
+        AccountPageConstants.varticalPillsProps[2].body = (<Form triggerRefresh={this.refresh} {...AccountPageConstants.modifyFormProps}/>);
+
+        if(pageStatus === PageStatus.pageReady) {
             return (
                 <div id="account">
-                    <NavBar {...navBarProps} />
+                    <NavBar {...AccountPageConstants.navBarProps} />
                     <div className="card offset-xl-2 col-xl-8 offset-gl-1 col-gl-10">
                         <div className="card-body">
                             <button
-                                onClick={joinToMatchMaking(userInfo.username)}
-                                className="btn btn-primary btn-lg"
-                                data-toggle="modal"
-                                data-target={"#"+modalProps.name}
-                                data-backdrop="static"
-                                data-keyboard="false">
+                                onClick={this.startGame}
+                                className="btn btn-primary btn-lg">
                                     Start game
                             </button>
                             <p>Play now for free!</p>
                         </div>
                     </div>
-                    <VerticalPills tabs={varticalPillsProps} />
-                    <Modal {...modalProps} />
+                    <VerticalPills tabs={AccountPageConstants.varticalPillsProps} />
+                </div>
+            );
+        }
+        if(pageStatus === PageStatus.matchmaking) {
+            return (
+                <div id="account">
+                    <NavBar {...AccountPageConstants.navBarProps} />
+                    <div className="card offset-xl-2 col-xl-8 offset-gl-1 col-gl-10">
+                        <h5 className="card-header">Match Making</h5>
+                        <div className="card-body">
+                            <h5 className="card-title">There are {matchMakingCounter-1} other user waiting for matchmaking.</h5>
+                            <p className="card-text">Please wait for yout enemy.</p>
+                            <button
+                                onClick={this.leaveMatchMaking}
+                                className="btn btn-danger btn-lg">
+                                    Leave Match Making
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        if(pageStatus === PageStatus.battleRequest) {
+            return (
+                <div id="account">
+                    <NavBar {...AccountPageConstants.navBarProps} />
+                    <div className="card offset-xl-2 col-xl-8 offset-gl-1 col-gl-10">
+                        <h5 className="card-header">Battle Request</h5>
+                        <div className="card-body">
+                            <h5 className="card-title">Your enemy is <b>{enemy}</b>.</h5>
+                            <p className="card-text">Please wait for yout enemy.</p>
+                            <button
+                                onClick={this.battleRequestAnswer(true)}
+                                id="accept"
+                                type="button"
+                                className="btn btn-success">
+                                    Accept
+                            </button>
+                            <button
+                                onClick={this.battleRequestAnswer(false)}
+                                id="discard"
+                                type="button"
+                                className="btn btn-danger">
+                                    Discard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        if(pageStatus === PageStatus.requestInfo) {
+            return (
+                <div id="account">
+                    <NavBar {...AccountPageConstants.navBarProps} />
+                    <div className="card offset-xl-2 col-xl-8 offset-gl-1 col-gl-10">
+                        <h5 className="card-header">{requestInfoText}</h5>
+                        <div className="card-body">
+                            <p className="card-text">Please wait.</p>
+                        </div>
+                    </div>
                 </div>
             );
         }

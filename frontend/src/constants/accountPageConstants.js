@@ -1,3 +1,10 @@
+import React from 'react';
+import Form from '../components/form.js';
+
+export const navBarProps = {
+    page: 'account',
+    user: null,
+};
 
 export const modifyFormFields = [
     {
@@ -26,7 +33,16 @@ export const modifyFormFields = [
     },
 ];
 
-export const changePasswordFormFields = [
+export const modifyFormProps = {
+    fetchURL: 'account/modify.php',
+    redirectURL: null,
+    title: 'Modify Data',
+    submitText: 'Modify',
+    fields: null,
+    checkBoxs: null,
+}
+
+const changePasswordFormFields = [
     {
         fieldName: 'oldpassword',
         title: 'Old Password',
@@ -45,4 +61,32 @@ export const changePasswordFormFields = [
         type: 'password',
         placeholder: 'Enter New Password Again'
     },
+];
+
+const passwordChangeFormProps = {
+    fetchURL: 'account/changepw.php',
+    redirectURL: null,
+    title: 'Change Password',
+    submitText: 'Change',
+    fields: changePasswordFormFields,
+    checkBoxs: null,
+};
+
+export const varticalPillsProps = [
+    {
+        name: 'profile',
+        body: null,
+    },
+    {
+        name: 'statistic',
+        body: null,
+    },
+    {
+        name: 'modify',
+        body: null
+    },
+    {
+        name: 'passwordchange',
+        body: (<Form {...passwordChangeFormProps}/>),
+    }
 ];

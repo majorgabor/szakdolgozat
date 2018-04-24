@@ -16,10 +16,10 @@ class Modal extends Component {
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <div className="modal-body">
+                        <div id={name+'-body'} className="modal-body">
                             {body}
                         </div>
-                        <div className="modal-footer">
+                        <div id={name+'-footer'} className="modal-footer">
                             {footer}
                         </div>
                     </div>

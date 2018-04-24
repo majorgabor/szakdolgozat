@@ -1,9 +1,9 @@
 
 function classname() {
     let classStr = '';
-    arguments.array.forEach(element => {
-        classStr += element + ' ';
-    });
+    for(let i = 0; i < arguments.length; i++) {
+        classStr += arguments[i] + ' ';
+    }
     return classStr.trim();
 }
 

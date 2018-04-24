@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import $ from 'jquery';
+import classname from '../actions/classname.js';
+import { shipArray } from '../actions/gameLogic.js';
 
 class GameTable extends Component {
 
@@ -15,20 +17,14 @@ class GameTable extends Component {
     render() {
         const { name } = this.props;
         let table = [];
-        for(let i = 0; i < 10; i++) {
-            table[i] = [];
-            for(let j = 0; j < 10; j++) {
-                table[i][j] = 10*i+j;
-            }
-        }
         return (
             <div id={name}>
-                {table.map(function(row, i) {
+                {shipArray.map(function(row, i) {
                     return (
                         <div className="row" key={i}>
                         {row.map(function(cell, j) {
                             return (
-                                <div className="card fieldCell" data-x={i} data-y={j} key={10*i+j}></div>
+                                <div className={classname('card fieldCell')} data-x={i} data-y={j} key={10*i+j}></div>
                             );
                         })}
                         </div>
