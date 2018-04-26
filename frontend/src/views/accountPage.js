@@ -7,7 +7,7 @@ import NavBar from '../components/navBar.js';
 import VerticalPills from '../components/verticalPills.js';
 import DataPanel from '../components/dataPanel.js';
 import Form from '../components/form.js';
-import Modal from '../components/modal.js';
+// import Modal from '../components/modal.js';
 import Loading from '../components/loading.js';
 
 import PageStatus from '../enums/accountPageStatus.js';
@@ -48,11 +48,15 @@ class AccountPage extends Component {
                 });
             } else {
                 this.setState({
-                    pageStatus: PageStatus.pageReady,
                     userInfo: response,
+                    pageStatus: PageStatus.pageReady,
                 });
             }
         };
+    }
+
+    componentWillUnmount() {
+        socket.removeAllListeners();
     }
 
     componentDidMount() {
@@ -65,8 +69,8 @@ class AccountPage extends Component {
         });
         socket.on('enemyFound', (data) => {
             this.setState({
+                enemy: data,
                 pageStatus: PageStatus.battleRequest,
-                enemy: data
             });
             // mainCounter(10, 'matchmakingModal-footer', () => {
             //     battleRequestAnswer(false);
@@ -75,8 +79,8 @@ class AccountPage extends Component {
         socket.on('enemyDiscarded', (data) => {
             // clearInterval(counter);
             this.setState({
-                pageStatus: PageStatus.requestInfo,
                 requestInfoText: 'Your enemy discarded.',
+                pageStatus: PageStatus.requestInfo,
             });
             setTimeout(function() {
                 console.log('startfrom-enemydiscarded');

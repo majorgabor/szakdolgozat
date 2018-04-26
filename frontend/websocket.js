@@ -4,22 +4,28 @@ let online = [];
 let matchMake = [];
 let pairs = [];
 let timer;
+let timeOut = null;
 
 io.on('connection', (client) => {
     online.push(client);
-    console.log('new connection. %s online user', online.length);
-    
+    // console.log('new connection. %s online user', online.length);
+    console.log('online + = %s', online.length);
 
     //join to matchmaking
     client.on('joinToMatchMaking', (username) => {
+        clearTimeout(timeOut);
+        timeOut = null;
         client.username = username;
         matchMake.push(client);
-        console.log('%s connected to the matchmaking. %s user waiting', client.username, matchMake.length);
+        // console.log('%s connected to the matchmaking. %s user waiting', client.username, matchMake.length);
+        console.log('pairs + %s = %s', client.username, matchMake.length);
         sendNumberOfWaitingUser();
-        if(matchMake.length === 2) {
-            setTimeout(function() {
+        console.log('timeOut=', timeOut);
+        if(matchMake.length === 2 && !timeOut) {
+            timeOut = setTimeout(function() {
                 startMatchMakeing();
-            }, 5000);
+                console.log('----timeout----');
+            }, 3000);
         }
     });
 
@@ -69,7 +75,11 @@ io.on('connection', (client) => {
     });
 
     client.on('getEnemyUsername', () => {
-        client.emit('enemyUsername', pairs[client.enemyPairIndex].username);
+        if(!!pairs[client.enemyPairIndex]) {
+            client.emit('enemyUsername', pairs[client.enemyPairIndex].username);
+        } else {
+            client.emit('enemyLeftGame', null);
+        }
     });
 
 
@@ -88,13 +98,13 @@ io.on('connection', (client) => {
         }
     });
 
-    client.on('fireMissle', (data) => {
-        pairs[client.enemyPairIndex].emit('missleArrived', data);
+    client.on('fireMissle', (x, y) => {
+        pairs[client.enemyPairIndex].emit('missleArrived', x, y);
     });
 
-    client.on('missleArrivedResult', (data) => {
-        pairs[client.enemyPairIndex].emit('youWait', data);
-        client.emit('youTurn', data);
+    client.on('missleArrivedResult', (result) => {
+        pairs[client.enemyPairIndex].emit('youWait', result);
+        client.emit('youTurn', result);
     });
 
     client.on('gameOver', () => {
@@ -113,8 +123,14 @@ io.on('connection', (client) => {
 
     //leave matchmaking
     client.on('leaveMatchMaking', () => {
-        console.log('%s is leaving the matchmaking', client.username);
+        // console.log('%s is leaving the matchmaking', client.username);
         matchMake.splice(matchMake.indexOf(client), 1);
+        console.log('pairs - %s = %s', client.username, matchMake.length);
+        if(matchMake.length < 2) {
+            clearTimeout(timeOut);
+            timeOut = null;
+            console.log('--timeout-clear--');
+        }
         sendNumberOfWaitingUser();
     });
 

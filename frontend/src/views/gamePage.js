@@ -2,13 +2,12 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import $ from 'jquery';
 import { socket } from '../actions/wsclient.js';
-import { counter, mainCounter } from '../actions/timer.js';
-import { isPlacebal, markShip, resetTable, randomShips, validFire, markFiredMissle, shipArray, isShipSank, isGameOver } from '../actions/gameLogic.js';
+// import { counter, mainCounter } from '../actions/timer.js';
+import { isPlacebal, markShip, resetTable, randomShips, validFire, markFiredMissle, markFiredMissleResult, shipArray, isShipSank, isGameOver } from '../actions/gameLogic.js';
 
 import NavBar from '../components/navBar.js';
 import GameTable from '../components/gameTable.js';
 import InfoPanel from '../components/infoPanel.js';
-import Modal from '../components/modal.js';
 
 import PageStatus from '../enums/gamePageStatus.js';
 
@@ -21,14 +20,20 @@ class GamePage extends Component {
             enemy: null,
             infoPanelText: null,
             infoCardText: null,
+            youTurn: false,
         };
-        this.x = undefined;
-        this.y = undefined;
+        this.x = -1;
+        this.y = -1;
 
         this.exit = this.exit.bind(this);
         this.onLeftClick = this.onLeftClick.bind(this);
         this.onFire = this.onFire.bind(this);
         this.ready = this.ready.bind(this);
+        this.backToAccountFunc = this.backToAccountFunc.bind(this);
+    }
+
+    componentWillUnmount() {
+        socket.removeAllListeners();
     }
     
     componentDidMount() {
@@ -41,28 +46,31 @@ class GamePage extends Component {
                 enemy: data,
             });
         });
-        socket.on('youTurn', (data) => {
+        socket.on('youTurn', (result) => {
             this.setState({
-                infoPanelText: data,
+                infoPanelText: result,
+                youTurn: true,
+                pageStatus: PageStatus.youTurn,
             });
-            setTimeout(function() {
-                this.setState({
-                    pageStatus: PageStatus.youTurn,
-                });
-            }.bind(this), 2000);
+            $('#fire').prop('disabled', true);
         });
-        socket.on('youWait', (data) => {
+        socket.on('youWait', (result) => {
+            if(!!result) {
+                markFiredMissleResult(this.x, this.y, result);
+            }
             this.setState({
+                infoPanelText: result,
+                youTurn: false,
                 pageStatus: PageStatus.enemyTurn,
-                infoPanelText: data,
             });
         });
-        socket.on('missleArrived', (data) => {
-            const shipId = shipArray[data.x][data.y];
+        socket.on('missleArrived', (x, y) => {
+            const shipId = shipArray[x][y];
             let result = 'MISS';
+            shipArray[x][y] = 'miss';
             if(!!shipId) {
                 result = 'HIT';
-                shipArray[data.x][data.y] = null;
+                shipArray[x][y] = 'hit';
                 if(isShipSank(shipId)) {
                     result = 'SANK';
                     if(isGameOver()) {
@@ -75,35 +83,31 @@ class GamePage extends Component {
         });
         socket.on('enemyLeftGame', () => {
             this.setState({
-                pageStatus: PageStatus.enemyTurn,
-                infoPanelText: (<p>Your enemy left the game.<br />Please wait.</p>),
+                infoCardText: (<p>Your enemy left the game.<br />Please wait.</p>),
+                pageStatus: PageStatus.showInfo,
             });
-            setTimeout(function() {
-                this.setState({
-                    pageStatus: PageStatus.backToAccount,
-                });
-            }.bind(this), 2000);
         });
         socket.on('winnerIs', (data) => {
             this.setState({
-                pageStatus: PageStatus.enemyTurn,
-                infoPanelText: (<p>The Winner Is <strong>{data}</strong>.</p>),
+                infoCardText: (<p>The Winner Is <strong>{data}</strong>.</p>),
+                pageStatus: PageStatus.showInfo,
             });
-            setTimeout(function() {
-                this.setState({
-                    pageStatus: PageStatus.backToAccount,
-                });
-            }.bind(this), 5000);
         });
     }
+
     onLeftClick(field, x, y) {
         if (field === 'myShips') {
             if (isPlacebal(x, y, 'horisontal')) {
                 markShip(x, y, 'horisontal');
             }
-        } else if(field === 'enemyArea') {
-            this.x = x;
-            this.y = y;
+        } else if(this.state.youTurn && field === 'enemyArea') {
+            if(this.x !== x || this.y !== y) {
+                $('#fire').prop('disabled', false);
+                $('#enemyArea').find('[data-x='+ this.x +'][data-y='+ this.y +']').removeClass('selectForFire');
+                this.x = x;
+                this.y = y;
+                $('#enemyArea').find('[data-x='+ this.x +'][data-y='+ this.y +']').addClass('selectForFire');
+            }
         }
     }
 
@@ -116,10 +120,10 @@ class GamePage extends Component {
     }
 
     ready() {
+        socket.emit('shipsReady', null);
         this.setState({
             pageStatus: PageStatus.waitForEnemyToPlaceShips,
         });
-        socket.emit('shipsReady', null);
     }
 
     onFire() {
@@ -127,7 +131,7 @@ class GamePage extends Component {
         let y = this.y;
         if(validFire(x, y)) {
             markFiredMissle(x, y);
-            socket.emit('fireMissle', {x, y},);
+            socket.emit('fireMissle', x, y);
         } else {
             console.log('already fired!');
         }
@@ -135,13 +139,16 @@ class GamePage extends Component {
 
     exit() {
         socket.emit('userExit', null);
+        this.backToAccountFunc();
+    }
+
+    backToAccountFunc() {
         this.setState({
             pageStatus: PageStatus.backToAccount,
         });
     }
     
     render() {
-        const { username } = this.props;
         const { pageStatus, enemy, infoCardText, infoPanelText } = this.state;
         if(pageStatus === PageStatus.backToLogin) {
             return(
@@ -157,18 +164,6 @@ class GamePage extends Component {
             page: 'game',
             user: 'username',
         };
-        const gameModalProps = {
-            name: 'gameModal',
-            title: 'Wait!',
-            body: (<div id="gameModal-body">Waiting for enemy to place ships.</div>),
-            footer: (<button onClick={this.exit} type="button" className="exitGame btn btn-danger">EXIT GAME</button>)
-        };
-        const exitModalProps = {
-            name: 'exitModal',
-            title: (<div id="exitModal-title">Enemy left the game.</div>),
-            body: (<div id="exitModal-body">Your enemy left the game.</div>),
-            footer: 'Please wait.',
-        };
         //---------------
         const mainCard = (
             <div className="card offset-xl-3 col-xl-6 offset-lg-2 col-lg-8 offset-md-1 col-md-10">
@@ -183,28 +178,26 @@ class GamePage extends Component {
             <div className="card-body">
                 <h5 className="card-title">Your Ships</h5>
                 <GameTable name={"myShips"} leftClick={this.onLeftClick} rightClick={this.onRightCLick} />
-                {pageStatus === PageStatus.placeShips && <div>
+                {pageStatus === PageStatus.placeShips &&
                     <div id="placeShipsButtons" className="container">
                         <div className="btn-group" id="myShipsButtons">
                             <button onClick={resetTable} id="reset" type="button" className="btn btn-primary">Reset Table</button>
                             <button onClick={this.ready} id="ready" type="button" className="btn btn-primary">Ready</button>
                             <button onClick={randomShips} id="random" type="button" className="btn btn-primary">Random</button>
                         </div>
-                    </div>
-                    <InfoPanel name="myShipsTimer" text={null} />
-                </div>}
+                    </div>}
+                <InfoPanel name="myShipsPanel" text={null} />
             </div>
         );
         const enemyAreaCard = (
             <div className="card-body">
                 <h5 className="card-title">Enemy Area</h5>
                 <GameTable name={"enemyArea"} leftClick={this.onLeftClick} />
-                {pageStatus === PageStatus.youTurn && <div>
+                {pageStatus === PageStatus.youTurn &&
                     <div id="placeShipsButtons" className="container">
-                        <button onClick={this.onFire} id="reset" type="button" className="btn btn-primary">Fire</button>
-                    </div>
-                    <InfoPanel name="enemyAreaTimer" text={null} />
-                </div>}
+                        <button onClick={this.onFire} id="fire" type="button" className="btn btn-primary">Fire</button>
+                    </div>}
+                <InfoPanel name="enemyAreaPanel" text={null} />
             </div>
         );
         if(pageStatus === PageStatus.placeShips) {
@@ -292,6 +285,7 @@ class GamePage extends Component {
                             <div className="card-body">
                                 <h5 className="card-title">Game Over!</h5>
                                 { infoCardText }
+                                <button onClick={this.backToAccountFunc} id="bactToAccount" type="button" className="btn btn-primary">Back To Account</button>
                             </div>
                         </div>
                     </div>

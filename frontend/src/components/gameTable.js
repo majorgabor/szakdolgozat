@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import $ from 'jquery';
 import classname from '../actions/classname.js';
-import { shipArray } from '../actions/gameLogic.js';
+import { shipArray, enemyArea } from '../actions/gameLogic.js';
 
 class GameTable extends Component {
 
@@ -24,11 +24,23 @@ class GameTable extends Component {
                         <div className="row" key={i}>
                         {row.map(function(cell, j) {
                             return (
-                                <div className={classname('card fieldCell')} data-x={i} data-y={j} key={10*i+j}></div>
+                                <div
+                                    className={classname(
+                                        'card fieldCell',
+                                        name === 'myShips' && !!shipArray[i][j] && 'ship',
+                                        name === 'myShips' && shipArray[i][j] === 'miss' && 'miss',
+                                        name === 'myShips' && shipArray[i][j] === 'hit' && 'hit',
+                                        name === 'enemyArea' && enemyArea[i][j] === 'miss' && 'miss',
+                                        name === 'enemyArea' && (enemyArea[i][j] === 'hit' || enemyArea[i][j] === 'sank') && 'hit',
+                                    )}
+                                    data-x={i}
+                                    data-y={j}
+                                    key={10*i+j}>
+                                </div>
                             );
                         })}
                         </div>
-                    )
+                    );
                 })}
             </div>
         );

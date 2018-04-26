@@ -12,21 +12,6 @@ import PageNotFound from './views/pageNotFound.js';
 
 class App extends Component {
 
-    constructor(props) {
-        super(props);
-
-        // this.state = {
-        //     loggedInUser: null,
-        // };
-        // this.onChangeUser = this.onChangeUser.bind(this);
-    }
-
-    // onChangeUser(newValue) {
-    //     this.setState({
-    //         loggedInUser: newValue,
-    //     });
-    // }
-
     render() {
         return (
             <Switch>

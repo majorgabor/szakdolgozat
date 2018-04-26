@@ -1,15 +1,18 @@
 import $ from 'jquery';
 
 export let shipArray = [];
+export let enemyArea = [];
 
 for(let i = 0; i < 10; i++) {
     shipArray[i] = [];
+    enemyArea[i] = [];
     for(let j = 0; j < 10; j++) {
         shipArray[i][j] = null;
+        enemyArea[i][j] = null;
     }
 }
 
-let placeinfShipId = 2;
+let placeinfShipId = 7;
 const shipSize = [null, 1, 1, 2, 2, 3, 4, 5];
 
 let shoots = [];
@@ -73,12 +76,12 @@ export function markShip(x, y, orientation){
     if(orientation === 'vertical'){
         for(let i = 0; i < length; i++){
             shipArray[x+i][y] = type;
-            $('#myShips').find('[data-x='+ (x+i) +'][data-y='+ y +']').css('background','#343a40');
+            $('#myShips').find('[data-x='+ (x+i) +'][data-y='+ y +']').addClass('ship');
         }
     } else if(orientation === 'horisontal'){
         for(let i = 0; i < length; i++){
             shipArray[x][y+i] = type;            
-            $('#myShips').find('[data-x='+ x +'][data-y='+ (y+i) +']').css('background','#343a40');
+            $('#myShips').find('[data-x='+ x +'][data-y='+ (y+i) +']').addClass('ship');
         }
     }
     if(placeinfShipId === 7) {
@@ -97,7 +100,7 @@ export function resetTable() {
     for (let i = 0; i < 10; i++) {
         for (let j = 0; j < 10; j++) {
             shipArray[i][j] = null;
-            $('#myShips').find('[data-x='+ i +'][data-y='+ j +']').css('background', '');
+            $('#myShips').find('[data-x='+ i +'][data-y='+ j +']').removeClass('ship');
         }
     }
 }
@@ -125,7 +128,10 @@ export function validFire(x, y) {
 
 export function markFiredMissle(x, y) {
     shoots.push(10*x+y);
-    console.log(shoots);
+}
+
+export function markFiredMissleResult(x, y, result) {
+    enemyArea[x][y] = result.toLowerCase();
 }
 
 export function isShipSank(shipId) {

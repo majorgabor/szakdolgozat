@@ -77,7 +77,7 @@ class Form extends Component {
     }
 
     render() {
-        const { title, submitText, fields, checkBoxs, redirectURL, initalValue } = this.props;
+        const { title, submitText, fields, checkBoxs, redirectURL } = this.props;
         const { error, success, message, redirect } = this.state;
         const alertType = success ? 'success' : 'danger';
         return (

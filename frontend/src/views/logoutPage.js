@@ -47,7 +47,7 @@ class LogoutPage extends Component {
                 <Redirect to='/' />
             );
         }
-        if(!this.state.isLoaded) {
+        if(!isLoaded) {
             return (
                 <Loading />
             );
