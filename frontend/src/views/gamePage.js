@@ -3,13 +3,14 @@ import { Redirect } from 'react-router-dom';
 import $ from 'jquery';
 import { socket } from '../actions/wsclient.js';
 import { timer, mainTimerFunc } from '../actions/timer.js';
-import { isPlacebal, markShip, resetTable, randomShips, validFire, markFiredMissleResult, shipArray, isShipSank, isGameOver } from '../actions/gameLogic.js';
+import { isPlacebal, markShip, shipIndicator, resetTable, randomShips, validFire, markFiredMissleResult, shipArray, isShipSank, isGameOver } from '../actions/gameLogic.js';
 
 import NavBar from '../components/navBar.js';
 import GameTable from '../components/gameTable.js';
 import InfoPanel from '../components/infoPanel.js';
 
 import PageStatus from '../enums/gamePageStatus.js';
+import Position from '../enums/position.js';
 
 class GamePage extends Component {
 
@@ -52,9 +53,9 @@ class GamePage extends Component {
                     enemy: data,
                 });
             });
-            mainTimerFunc(20, 'myShipsPanel-timer', () => {
-                this.exit();
-            });
+            // mainTimerFunc(20, 'myShipsPanel-timer', () => {
+            //     this.exit();
+            // });
 
         }
         socket.on('youTurn', (result) => {
@@ -110,10 +111,10 @@ class GamePage extends Component {
         });
     }
 
-    onLeftClick(field, x, y) {
+    onLeftClick(field, x, y, position) {
         if (field === 'myShips') {
-            if (isPlacebal(x, y, 'horisontal')) {
-                markShip(x, y, 'horisontal');
+            if (isPlacebal(x, y, position)) {
+                markShip(x, y, position);
             }
         } else if(this.state.youTurn && field === 'enemyArea') {
             if(this.x !== x || this.y !== y) {
@@ -126,12 +127,22 @@ class GamePage extends Component {
         }
     }
 
-    onRightCLick(field, x, y) {
+    // onRightCLick(field, x, y) {
+    //     if (field === "myShips") {
+    //         if (isPlacebal(x, y, Position.vertical)) {
+    //             markShip(x, y, Position.vertical);
+    //         }
+    //     }
+    // }
+
+    hoverInField(field, x, y, orientation) {
         if (field === "myShips") {
-            if (isPlacebal(x, y, 'vertical')) {
-                markShip(x, y, 'vertical');
-            }
+            shipIndicator(x, y, orientation, isPlacebal(x, y, orientation));
         }
+    }
+
+    hoverOutField() {
+
     }
 
     ready() {
@@ -198,7 +209,7 @@ class GamePage extends Component {
         const myShipsCard = (
             <div className="card-body">
                 <h5 className="card-title">Your Ships</h5>
-                <GameTable name={"myShips"} leftClick={this.onLeftClick} rightClick={this.onRightCLick} />
+                <GameTable name={"myShips"} leftClick={this.onLeftClick} rightClick={this.onRightCLick} hoverInField={this.hoverInField}/>
                 {pageStatus === PageStatus.placeShips &&
                     <div id="placeShipsButtons" className="container">
                         <div className="btn-group" id="myShipsButtons">
@@ -213,7 +224,7 @@ class GamePage extends Component {
         const enemyAreaCard = (
             <div className="card-body">
                 <h5 className="card-title">Enemy Area</h5>
-                <GameTable name={"enemyArea"} leftClick={this.onLeftClick} />
+                <GameTable name={"enemyArea"} leftClick={this.onLeftClick} hoverInField={this.hoverInField} />
                 {pageStatus === PageStatus.youTurn &&
                     <div id="placeShipsButtons" className="container">
                         <button onClick={this.onFire} id="fire" type="button" className="btn btn-primary">Fire</button>

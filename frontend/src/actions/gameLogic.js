@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import Position from '../enums/position.js';
 
 export let shipArray = [];
 export let enemyArea = [];
@@ -22,7 +23,7 @@ export function isPlacebal(x, y, orientation){
         return false;
     }
     const length = shipSize[placeinfShipId];
-    if(orientation === 'vertical'){
+    if(orientation === Position.vertical){
         if(x > 10-length) return false;
         if(y > 0){
             for(let i = 0; i < length; i++){
@@ -43,7 +44,7 @@ export function isPlacebal(x, y, orientation){
                 if(shipArray[x+i][y+1]) return false;
             }    
         }
-    } else if(orientation === 'horisontal') {
+    } else if(orientation === Position.horisontal) {
         if(y > 10-length) return false;
         if(x > 0){
             for(let i = 0; i < length; i++){
@@ -70,15 +71,15 @@ export function isPlacebal(x, y, orientation){
     return true;
 }
 
-export function markShip(x, y, orientation){
+export function markShip(x, y, orientation) {
     const length = shipSize[placeinfShipId];
     const type = placeinfShipId;
-    if(orientation === 'vertical'){
+    if(orientation === Position.vertical){
         for(let i = 0; i < length; i++){
             shipArray[x+i][y] = type;
             $('#myShips').find('[data-x='+ (x+i) +'][data-y='+ y +']').addClass('ship');
         }
-    } else if(orientation === 'horisontal'){
+    } else if(orientation === Position.horisontal){
         for(let i = 0; i < length; i++){
             shipArray[x][y+i] = type;            
             $('#myShips').find('[data-x='+ x +'][data-y='+ (y+i) +']').addClass('ship');
@@ -91,6 +92,45 @@ export function markShip(x, y, orientation){
         $('#ready').prop("disabled", false);
     }
     placeinfShipId--;
+}
+
+export function shipIndicator(x, y, orientation, isValid) {
+    const length = shipSize[placeinfShipId];
+    if(orientation === Position.vertical){
+        for(let i = 0; i < length; i++){
+            const $_this = $('#myShips').find('[data-x='+ (x+i) +'][data-y='+ y +']');
+            if(isValid) {
+                if($_this.hasClass('shipIsPlaceable')) {
+                    $_this.removeClass('shipIsPlaceable');
+                } else {
+                    $_this.addClass('shipIsPlaceable');
+                }
+            } else {
+                if($_this.hasClass('shipNotPlaceable')) {
+                    $_this.removeClass('shipNotPlaceable');
+                } else {
+                    $_this.addClass('shipNotPlaceable');
+                }
+            }
+        }
+    } else if(orientation === Position.horisontal){
+        for(let i = 0; i < length; i++){
+            const $_this = $('#myShips').find('[data-x='+ x +'][data-y='+ (y+i) +']');           
+            if(isValid) {
+                if($_this.hasClass('shipIsPlaceable')) {
+                    $_this.removeClass('shipIsPlaceable');
+                } else {
+                    $_this.addClass('shipIsPlaceable');
+                }
+            } else {
+                if($_this.hasClass('shipNotPlaceable')) {
+                    $_this.removeClass('shipNotPlaceable');
+                } else {
+                    $_this.addClass('shipNotPlaceable');
+                }
+            }
+        }
+    }
 }
 
 export function resetTable() {
@@ -114,9 +154,9 @@ export function randomShips() {
     let orientation, x, y;
     while(placeinfShipId > 0){
         if(Math.random() >= 0.5){
-            orientation = 'horisontal';
+            orientation = Position.horisontal;
         } else {
-            orientation = 'vertical';
+            orientation = Position.vertical;
         }
         x = Math.floor(Math.random() * 10);
         y = Math.floor(Math.random() * 10);

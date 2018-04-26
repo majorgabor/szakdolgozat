@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
+import $ from 'jquery';
 import { fetchAjax } from '../actions/fetchAjax.js';
 import { socket } from '../actions/wsclient.js';
 import { timer, mainTimerFunc } from '../actions/timer.js';
@@ -212,20 +213,22 @@ class AccountPage extends Component {
                         <div className="card-body">
                             <h5 className="card-title">Your enemy is <b>{enemy}</b>.</h5>
                             <p id="battleRequest-timer" className="card-text"></p>
-                            <button
-                                onClick={this.battleRequestAnswer(true)}
-                                id="accept"
-                                type="button"
-                                className="btn btn-success">
-                                    Accept
-                            </button>
-                            <button
-                                onClick={this.battleRequestAnswer(false)}
-                                id="discard"
-                                type="button"
-                                className="btn btn-danger">
-                                    Discard
-                            </button>
+                            <div id="battleRequestButtons" className="container">
+                                <button
+                                    onClick={this.battleRequestAnswer(true)}
+                                    id="accept"
+                                    type="button"
+                                    className="btn btn-success">
+                                        Accept
+                                </button>
+                                <button
+                                    onClick={this.battleRequestAnswer(false)}
+                                    id="discard"
+                                    type="button"
+                                    className="btn btn-danger">
+                                        Discard
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

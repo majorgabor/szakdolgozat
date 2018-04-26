@@ -3,14 +3,48 @@ import $ from 'jquery';
 import classname from '../actions/classname.js';
 import { shipArray, enemyArea } from '../actions/gameLogic.js';
 
+import Position from '../enums/position.js';
+
 class GameTable extends Component {
 
+    componentWillUnmount() {
+        $(window).off();
+    }
+    
     componentDidMount() {
-        const {name, leftClick, rightClick} = this.props;
-        $('#'+name).find('.row').find('.card').on('click', function() {
-            leftClick(name, parseInt(this.dataset.x), parseInt(this.dataset.y));
-        }).on('contextmenu', function() {
-            rightClick(name, parseInt(this.dataset.x), parseInt(this.dataset.y));
+        const {name, leftClick, rightClick, hoverInField} = this.props;
+        let position = Position.horisontal;
+        let thisX = 0;
+        let thisY = 0;
+        $('#'+name).find('.row').find('.fieldCell')
+
+        .on('click', function() {
+            leftClick(name, thisX, thisY, position);
+        })
+        // .on('contextmenu', function() {
+        //     rightClick(name, parseInt(this.dataset.x), parseInt(this.dataset.y));
+        // })
+
+        .on('mouseenter', function() {
+            thisX = parseInt(this.dataset.x);
+            thisY = parseInt(this.dataset.y);
+            hoverInField(name, thisX, thisY, position);
+        })
+        .on('mouseleave', function() {
+            $('.fieldCell').removeClass('shipIsPlaceable');
+            $('.fieldCell').removeClass('shipNotPlaceable');
+        });
+
+        $('#myShips').on('mouseenter', function() {
+            $(window).keypress(function (e) {
+                e.preventDefault();
+                position = position ? Position.horisontal : Position.vertical;
+                $('.fieldCell').removeClass('shipIsPlaceable');
+                $('.fieldCell').removeClass('shipNotPlaceable');
+                hoverInField(name, thisX, thisY, position);
+            });
+        }).on('mouseleave', function() {
+            $(window).off();
         });
     }
 

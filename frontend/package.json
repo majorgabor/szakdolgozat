@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "jquery": "^3.3.1",
+    "node-sass-chokidar": "^1.2.2",
     "react": "^16.3.1",
     "react-dom": "^16.3.1",
     "react-router-dom": "^4.2.2",
@@ -12,9 +13,18 @@
     "socket.io-client": "^2.1.0"
   },
   "scripts": {
+    "build-css": "node-sass-chokidar src/ -o src/",
+    "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-enzyme": "^1.0.0-beta.0",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
+    "sinon": "^4.5.0"
   }
 }
