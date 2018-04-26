@@ -1,22 +1,22 @@
 import $ from 'jquery';
 
 
-export let counter = null;
+export let timer = null;
 
-export function mainCounter(totalTime, whereToPrint, callbackFunction) {
-    let timer = (function () {
+export function mainTimerFunc(totalTime, whereToPrint, callbackFunction) {
+    let counter = (function () {
         let x = totalTime;
         return function () {
             return x -= 1;
         };
     })();
     $("#" + whereToPrint).text('You have '+totalTime+' seconds left.');
-    counter = setInterval(function () {
-        let timeLeft = timer();
+    timer = setInterval(function () {
+        let timeLeft = counter();
         console.log(timeLeft);
         $("#" + whereToPrint).text('You have '+timeLeft+' seconds left.');
         if (timeLeft === 0) {
-            clearInterval(counter);
+            clearInterval(timer);
             callbackFunction();
         }
     }, 1000);

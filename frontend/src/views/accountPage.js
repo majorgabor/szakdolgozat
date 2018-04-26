@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { fetchAjax } from '../actions/fetchAjax.js';
 import { socket } from '../actions/wsclient.js';
+import { timer, mainTimerFunc } from '../actions/timer.js';
 
 import NavBar from '../components/navBar.js';
 import VerticalPills from '../components/verticalPills.js';
 import DataPanel from '../components/dataPanel.js';
 import Form from '../components/form.js';
-// import Modal from '../components/modal.js';
 import Loading from '../components/loading.js';
 
 import PageStatus from '../enums/accountPageStatus.js';
@@ -57,10 +57,10 @@ class AccountPage extends Component {
 
     componentWillUnmount() {
         socket.removeAllListeners();
+        clearTimeout(timer);
     }
 
     componentDidMount() {
-        console.log('component mounted');
         this.refresh()
         socket.on('numberOfWaitingUser', (data) => {
             this.setState({
@@ -72,12 +72,12 @@ class AccountPage extends Component {
                 enemy: data,
                 pageStatus: PageStatus.battleRequest,
             });
-            // mainCounter(10, 'matchmakingModal-footer', () => {
-            //     battleRequestAnswer(false);
-            // });
+            mainTimerFunc(10, 'battleRequest-timer', () => {
+                this.battleRequestAnswer(false)();
+            });
         });
         socket.on('enemyDiscarded', (data) => {
-            // clearInterval(counter);
+            clearInterval(timer);
             this.setState({
                 requestInfoText: 'Your enemy discarded.',
                 pageStatus: PageStatus.requestInfo,
@@ -111,7 +111,7 @@ class AccountPage extends Component {
     battleRequestAnswer(answer) {
         return () => {
             socket.emit('battleRequestAnswer', answer);
-            // clearInterval(counter);
+            clearInterval(timer);
             if(answer) {
                 this.setState({
                     pageStatus: PageStatus.requestInfo,
@@ -211,7 +211,7 @@ class AccountPage extends Component {
                         <h5 className="card-header">Battle Request</h5>
                         <div className="card-body">
                             <h5 className="card-title">Your enemy is <b>{enemy}</b>.</h5>
-                            <p className="card-text">Please wait for yout enemy.</p>
+                            <p id="battleRequest-timer" className="card-text"></p>
                             <button
                                 onClick={this.battleRequestAnswer(true)}
                                 id="accept"

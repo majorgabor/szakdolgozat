@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import $ from 'jquery';
 import { socket } from '../actions/wsclient.js';
-// import { counter, mainCounter } from '../actions/timer.js';
-import { isPlacebal, markShip, resetTable, randomShips, validFire, markFiredMissle, markFiredMissleResult, shipArray, isShipSank, isGameOver } from '../actions/gameLogic.js';
+import { timer, mainTimerFunc } from '../actions/timer.js';
+import { isPlacebal, markShip, resetTable, randomShips, validFire, markFiredMissleResult, shipArray, isShipSank, isGameOver } from '../actions/gameLogic.js';
 
 import NavBar from '../components/navBar.js';
 import GameTable from '../components/gameTable.js';
@@ -18,12 +18,16 @@ class GamePage extends Component {
         this.state = {
             pageStatus: PageStatus.placeShips,
             enemy: null,
-            infoPanelText: null,
+            mainPanelText: null,
+            myShipsPanelText: ' ',
+            enemyAreaPanelText: null,
             infoCardText: null,
             youTurn: false,
         };
         this.x = -1;
         this.y = -1;
+
+        resetTable();
 
         this.exit = this.exit.bind(this);
         this.onLeftClick = this.onLeftClick.bind(this);
@@ -34,23 +38,34 @@ class GamePage extends Component {
 
     componentWillUnmount() {
         socket.removeAllListeners();
+        clearTimeout(timer);
     }
     
     componentDidMount() {
         $('#close-gameInfo').hide();//!!!
         $('#ready').prop("disabled", true);
         $('#reset').prop("disabled", true);
-        socket.emit('getEnemyUsername', null);
-        socket.on('enemyUsername', (data) =>{
-            this.setState({
-                enemy: data,
+        if(!this.state.enemy) {
+            socket.emit('getEnemyUsername', null);
+            socket.on('enemyUsername', (data) =>{
+                this.setState({
+                    enemy: data,
+                });
             });
-        });
+            mainTimerFunc(20, 'myShipsPanel-timer', () => {
+                this.exit();
+            });
+
+        }
         socket.on('youTurn', (result) => {
             this.setState({
-                infoPanelText: result,
+                myShipsPanelText: !!result ? 'The enemy '+result+' your ship.' : null,
+                enemyAreaPanelText: ' ',
                 youTurn: true,
                 pageStatus: PageStatus.youTurn,
+            });
+            mainTimerFunc(15, 'enemyAreaPanel-timer', () => {
+                this.exit();
             });
             $('#fire').prop('disabled', true);
         });
@@ -59,7 +74,7 @@ class GamePage extends Component {
                 markFiredMissleResult(this.x, this.y, result);
             }
             this.setState({
-                infoPanelText: result,
+                enemyAreaPanelText: !!result ? 'You '+result+' the enemy ship.' : null,
                 youTurn: false,
                 pageStatus: PageStatus.enemyTurn,
             });
@@ -120,8 +135,10 @@ class GamePage extends Component {
     }
 
     ready() {
+        clearTimeout(timer);
         socket.emit('shipsReady', null);
         this.setState({
+            myShipsPanelText: null,
             pageStatus: PageStatus.waitForEnemyToPlaceShips,
         });
     }
@@ -130,7 +147,9 @@ class GamePage extends Component {
         let x = this.x;
         let y = this.y;
         if(validFire(x, y)) {
-            markFiredMissle(x, y);
+            // markFiredMissle(x, y);
+            clearTimeout(timer);
+            $('#enemyAreaPanel-timer').text('');
             socket.emit('fireMissle', x, y);
         } else {
             console.log('already fired!');
@@ -143,13 +162,15 @@ class GamePage extends Component {
     }
 
     backToAccountFunc() {
+        // resetTable();
         this.setState({
+            enemy: null,
             pageStatus: PageStatus.backToAccount,
         });
     }
     
     render() {
-        const { pageStatus, enemy, infoCardText, infoPanelText } = this.state;
+        const { pageStatus, enemy, infoCardText, mainPanelText, myShipsPanelText, enemyAreaPanelText } = this.state;
         if(pageStatus === PageStatus.backToLogin) {
             return(
                 <Redirect to="/login" />
@@ -186,7 +207,7 @@ class GamePage extends Component {
                             <button onClick={randomShips} id="random" type="button" className="btn btn-primary">Random</button>
                         </div>
                     </div>}
-                <InfoPanel name="myShipsPanel" text={null} />
+                { !!myShipsPanelText && <InfoPanel name="myShipsPanel" text={myShipsPanelText} /> }
             </div>
         );
         const enemyAreaCard = (
@@ -197,7 +218,7 @@ class GamePage extends Component {
                     <div id="placeShipsButtons" className="container">
                         <button onClick={this.onFire} id="fire" type="button" className="btn btn-primary">Fire</button>
                     </div>}
-                <InfoPanel name="enemyAreaPanel" text={null} />
+                { !!enemyAreaPanelText && <InfoPanel name="enemyAreaPanel" text={enemyAreaPanelText} /> }
             </div>
         );
         if(pageStatus === PageStatus.placeShips) {
@@ -243,9 +264,9 @@ class GamePage extends Component {
                 <div>
                     <NavBar {...navBarProps} />
                     { mainCard }
-                    { !!infoPanelText && <InfoPanel
-                        name="gameInfo"
-                        text={infoPanelText} /> }
+                    <InfoPanel
+                        name="mainPanel"
+                        text="You turn. Fire a missile on the Enemy Area." />
                     <div className="row">
                         <div className="card col-md-6">
                             { myShipsCard }
@@ -263,7 +284,7 @@ class GamePage extends Component {
                     <NavBar {...navBarProps} />
                     { mainCard }
                     <InfoPanel
-                        name="gameInfo"
+                        name="mainPanel"
                         text="Enemy turn. Please wait." />
                     <div className="row">
                         <div className="card col-md-6">

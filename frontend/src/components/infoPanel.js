@@ -10,6 +10,7 @@ class InfoPanel extends Component {
                 <div id={name+'-text'}>
                     {text}
                 </div>
+                <div id={name+'-timer'}></div>
             </div>
         );
     }

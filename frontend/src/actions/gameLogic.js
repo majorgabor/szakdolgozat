@@ -15,7 +15,7 @@ for(let i = 0; i < 10; i++) {
 let placeinfShipId = 7;
 const shipSize = [null, 1, 1, 2, 2, 3, 4, 5];
 
-let shoots = [];
+// let shoots = [];
 
 export function isPlacebal(x, y, orientation){
     if(placeinfShipId === 0) {
@@ -95,14 +95,18 @@ export function markShip(x, y, orientation){
 
 export function resetTable() {
     $('#reset').prop("disabled", true);
-    $('#ready').prop("disabled", true);    
+    $('#ready').prop("disabled", true);
     placeinfShipId = 7;
     for (let i = 0; i < 10; i++) {
         for (let j = 0; j < 10; j++) {
             shipArray[i][j] = null;
-            $('#myShips').find('[data-x='+ i +'][data-y='+ j +']').removeClass('ship');
+            enemyArea[i][j] = null;
+            $('.fieldCell[data-x='+ i +'][data-y='+ j +']').removeClass('ship');
+            $('.fieldCell[data-x='+ i +'][data-y='+ j +']').removeClass('miss');
+            $('.fieldCell[data-x='+ i +'][data-y='+ j +']').removeClass('hit');
         }
     }
+    console.log('reset');
 }
 
 export function randomShips() {
@@ -123,12 +127,13 @@ export function randomShips() {
 }
 
 export function validFire(x, y) {
-    return !(shoots.indexOf(10*x+y) > -1);
+    return !enemyArea[x][y];
+    // return !(shoots.indexOf(10*x+y) > -1);
 }
 
-export function markFiredMissle(x, y) {
-    shoots.push(10*x+y);
-}
+// export function markFiredMissle(x, y) {
+//     shoots.push(10*x+y);
+// }
 
 export function markFiredMissleResult(x, y, result) {
     enemyArea[x][y] = result.toLowerCase();
