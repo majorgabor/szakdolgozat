@@ -9,22 +9,21 @@ class GameTable extends Component {
 
     componentWillUnmount() {
         $(window).off();
+        $('#myShips').off();
+        $('#enemyArea').off();
     }
     
     componentDidMount() {
+        console.log(this.props.isYouTurn);
         const {name, leftClick, rightClick, hoverInField} = this.props;
         let position = Position.horisontal;
         let thisX = 0;
         let thisY = 0;
-        $('#'+name).find('.row').find('.fieldCell')
 
+        $('#myShips').find('.row').find('.fieldCell')
         .on('click', function() {
             leftClick(name, thisX, thisY, position);
         })
-        // .on('contextmenu', function() {
-        //     rightClick(name, parseInt(this.dataset.x), parseInt(this.dataset.y));
-        // })
-
         .on('mouseenter', function() {
             thisX = parseInt(this.dataset.x);
             thisY = parseInt(this.dataset.y);
@@ -35,7 +34,8 @@ class GameTable extends Component {
             $('.fieldCell').removeClass('shipNotPlaceable');
         });
 
-        $('#myShips').on('mouseenter', function() {
+        $('#myShips')
+        .on('mouseenter', function() {
             $(window).keypress(function (e) {
                 e.preventDefault();
                 position = position ? Position.horisontal : Position.vertical;
@@ -43,9 +43,27 @@ class GameTable extends Component {
                 $('.fieldCell').removeClass('shipNotPlaceable');
                 hoverInField(name, thisX, thisY, position);
             });
-        }).on('mouseleave', function() {
+        })
+        .on('mouseleave', function() {
             $(window).off();
         });
+
+        if(this.props.isYouTurn) {
+            $('#enemyArea').find('.row').find('.fieldCell')
+            .on('click', function() {
+                $('.fieldCell').removeClass('missileTargetSelected');
+                $(this).addClass('missileTargetSelected');
+                leftClick(name, parseInt(this.dataset.x), parseInt(this.dataset.y), null);
+            })
+            .on('mouseenter', function() {
+                $(this).addClass('missileTarget');
+            })
+            .on('mouseleave', function() {
+                $('.fieldCell').removeClass('missileTarget');
+            });
+        } else {
+            $('#enemyArea').find('.row').find('.fieldCell').off();
+        }
     }
 
     render() {

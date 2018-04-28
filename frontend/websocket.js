@@ -31,6 +31,7 @@ io.on('connection', (client) => {
 
     function startMatchMakeing() {
         console.log('start match making');        
+        timeOut = null;
         while(matchMake.length >= 2) {
             const firstIndex = Math.floor(Math.random() * matchMake.length);
             const secondIndex = Math.floor(Math.random() * matchMake.length);
@@ -67,12 +68,28 @@ io.on('connection', (client) => {
                 timeOut = null;
             }
 
-            pairs[client.enemyPairIndex].accepted = false;
+            pairs[client.enemyPairIndex].accepted = null;
             pairs[client.enemyPairIndex].emit('enemyDiscarded', null);
             
             pairs.splice(client.enemyPairIndex, 1);
             pairs.splice(pairs.indexOf(client), 1);
         }
+    });
+
+    //leave matchmaking
+    client.on('leaveMatchMaking', () => {
+        if(!client.username) {
+            console.log('>>> exception on: leaveMatchMaking');
+            return;
+        }
+        console.log('%s is leaving the matchmaking', client.username);
+        matchMake.splice(matchMake.indexOf(client), 1);
+        
+        if(matchMake.length < 2) {
+            clearTimeout(timeOut);
+            timeOut = null;
+        }
+        sendNumberOfWaitingUser();
     });
 
     // get enemy username
@@ -150,23 +167,6 @@ io.on('connection', (client) => {
         pairs.splice(client.enemyPairIndex, 1);
         pairs.splice(pairs.indexOf(client), 1);
     });
-
-    //leave matchmaking
-    client.on('leaveMatchMaking', () => {
-        if(!client.username) {
-            console.log('>>> exception on: leaveMatchMaking');
-            return;
-        }
-        console.log('%s is leaving the matchmaking', client.username);
-        matchMake.splice(matchMake.indexOf(client), 1);
-        
-        if(matchMake.length < 2) {
-            clearTimeout(timeOut);
-            timeOut = null;
-        }
-        sendNumberOfWaitingUser();
-    });
-
 
     //disconnect
     client.on('disconnect', () => {

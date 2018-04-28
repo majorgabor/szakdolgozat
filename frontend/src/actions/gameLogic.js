@@ -16,8 +16,6 @@ for(let i = 0; i < 10; i++) {
 let placeinfShipId = 7;
 const shipSize = [null, 1, 1, 2, 2, 3, 4, 5];
 
-// let shoots = [];
-
 export function isPlacebal(x, y, orientation){
     if(placeinfShipId === 0) {
         return false;
@@ -168,12 +166,7 @@ export function randomShips() {
 
 export function validFire(x, y) {
     return !enemyArea[x][y];
-    // return !(shoots.indexOf(10*x+y) > -1);
 }
-
-// export function markFiredMissle(x, y) {
-//     shoots.push(10*x+y);
-// }
 
 export function markFiredMissleResult(x, y, result) {
     enemyArea[x][y] = result.toLowerCase();
@@ -192,7 +185,7 @@ export function isShipSank(shipId) {
 export function isGameOver() {
     for(let i = 0; i < 10; i++) {
         for(let j = 0; j < 10; j++) {
-            if(!!shipArray[i][j]) {
+            if(Number.isInteger(shipArray[i][j])) {
                 return false;
             }
         }

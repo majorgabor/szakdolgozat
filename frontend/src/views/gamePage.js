@@ -65,9 +65,9 @@ class GamePage extends Component {
                 youTurn: true,
                 pageStatus: PageStatus.youTurn,
             });
-            mainTimerFunc(15, 'enemyAreaPanel-timer', () => {
-                this.exit();
-            });
+            // mainTimerFunc(15, 'enemyAreaPanel-timer', () => {
+            //     this.exit();
+            // });
             $('#fire').prop('disabled', true);
         });
         socket.on('youWait', (result) => {
@@ -117,23 +117,19 @@ class GamePage extends Component {
                 markShip(x, y, position);
             }
         } else if(this.state.youTurn && field === 'enemyArea') {
-            if(this.x !== x || this.y !== y) {
+            if(validFire(x, y)) {
                 $('#fire').prop('disabled', false);
-                $('#enemyArea').find('[data-x='+ this.x +'][data-y='+ this.y +']').removeClass('selectForFire');
-                this.x = x;
-                this.y = y;
-                $('#enemyArea').find('[data-x='+ this.x +'][data-y='+ this.y +']').addClass('selectForFire');
+                if(this.x !== x || this.y !== y) {
+                    this.x = x;
+                    this.y = y;
+                }
+            } else {
+                $('#fire').prop('disabled', true);
+                $('.fieldCell').removeClass('missileTargetSelected');
+                console.log('already fired!');
             }
         }
     }
-
-    // onRightCLick(field, x, y) {
-    //     if (field === "myShips") {
-    //         if (isPlacebal(x, y, Position.vertical)) {
-    //             markShip(x, y, Position.vertical);
-    //         }
-    //     }
-    // }
 
     hoverInField(field, x, y, orientation) {
         if (field === "myShips") {
@@ -155,16 +151,10 @@ class GamePage extends Component {
     }
 
     onFire() {
-        let x = this.x;
-        let y = this.y;
-        if(validFire(x, y)) {
-            // markFiredMissle(x, y);
-            clearTimeout(timer);
-            $('#enemyAreaPanel-timer').text('');
-            socket.emit('fireMissle', x, y);
-        } else {
-            console.log('already fired!');
-        }
+        clearTimeout(timer);
+        socket.emit('fireMissle', this.x, this.y);
+        $('#enemyAreaPanel-timer').text('');
+        $('.fieldCell').removeClass('missileTargetSelected');
     }
 
     exit() {
@@ -181,7 +171,7 @@ class GamePage extends Component {
     }
     
     render() {
-        const { pageStatus, enemy, infoCardText, mainPanelText, myShipsPanelText, enemyAreaPanelText } = this.state;
+        const { pageStatus, enemy, infoCardText, mainPanelText, myShipsPanelText, enemyAreaPanelText, youTurn } = this.state;
         if(pageStatus === PageStatus.backToLogin) {
             return(
                 <Redirect to="/login" />
@@ -209,7 +199,7 @@ class GamePage extends Component {
         const myShipsCard = (
             <div className="card-body">
                 <h5 className="card-title">Your Ships</h5>
-                <GameTable name={"myShips"} leftClick={this.onLeftClick} rightClick={this.onRightCLick} hoverInField={this.hoverInField}/>
+                <GameTable name={"myShips"} leftClick={this.onLeftClick} hoverInField={this.hoverInField} isYouTurn={youTurn}/>
                 {pageStatus === PageStatus.placeShips &&
                     <div id="placeShipsButtons" className="container">
                         <div className="btn-group" id="myShipsButtons">
@@ -224,7 +214,7 @@ class GamePage extends Component {
         const enemyAreaCard = (
             <div className="card-body">
                 <h5 className="card-title">Enemy Area</h5>
-                <GameTable name={"enemyArea"} leftClick={this.onLeftClick} hoverInField={this.hoverInField} />
+                <GameTable name={"enemyArea"} leftClick={this.onLeftClick} hoverInField={this.hoverInField} isYouTurn={youTurn}/>
                 {pageStatus === PageStatus.youTurn &&
                     <div id="placeShipsButtons" className="container">
                         <button onClick={this.onFire} id="fire" type="button" className="btn btn-primary">Fire</button>
@@ -292,6 +282,7 @@ class GamePage extends Component {
         if(pageStatus === PageStatus.enemyTurn) {
             return (
                 <div>
+                    <div></div>
                     <NavBar {...navBarProps} />
                     { mainCard }
                     <InfoPanel

@@ -1,10 +1,12 @@
 .fieldCell {
   width: 50px;
   height: 50px; }
-  .fieldCell.shipIsPlaceable {
+  .fieldCell.shipIsPlaceable, .fieldCell.missileTarget {
     background-color: rgba(52, 58, 64, 0.1); }
   .fieldCell.shipNotPlaceable {
     background-color: rgba(244, 0, 0, 0.1); }
+  .fieldCell.missileTargetSelected {
+    border: 5px solid red; }
   .fieldCell.ship {
     background-color: #343a40; }
   .fieldCell.miss {
