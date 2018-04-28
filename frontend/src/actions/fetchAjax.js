@@ -13,10 +13,18 @@ function handleResponse(response) {
 }
 
 
-export function fetchAjax(url, options, success) {
+export function fetchAjax(urlPath, method, body, success) {
     console.log('fetching data');
 
-    fetch(url, options)
+    fetch(
+        'http://localhost:80/szakdolgozat/back-end/API/' + urlPath,
+        {
+            method: method,
+            credentials: 'include',
+            header: { 'Content-Type': 'application/json' },
+            body: body,
+        }
+    )
     .then(handleResponse)
     .then(function(data) {
         // console.log('fetchAjax success:', data);

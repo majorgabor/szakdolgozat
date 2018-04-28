@@ -11,6 +11,8 @@ import DataPanel from '../components/dataPanel.js';
 import Form from '../components/form.js';
 import Loading from '../components/loading.js';
 
+import PageURL from '../constants/pageUrl.js';
+import ServerURL from '../constants/serverUrl.js';
 import PageStatus from '../enums/accountPageStatus.js';
 import * as AccountPageConstants from '../constants/accountPageConstants.js';
 
@@ -31,14 +33,7 @@ class AccountPage extends Component {
     }
 
     refresh() {
-        fetchAjax(
-            'http://localhost:80/szakdolgozat/back-end/API/account/',
-            {
-                method: 'GET',
-                credentials: 'include',
-            },
-            this.onAjaxsuccess()
-        );
+        fetchAjax(ServerURL.account, 'GET', null, this.onAjaxsuccess());
     }
 
     onAjaxsuccess() {
@@ -73,9 +68,9 @@ class AccountPage extends Component {
                 enemy: data,
                 pageStatus: PageStatus.battleRequest,
             });
-            mainTimerFunc(10, 'battleRequest-timer', () => {
-                this.battleRequestAnswer(false)();
-            });
+            // mainTimerFunc(10, 'battleRequest-timer', () => {
+            //     this.battleRequestAnswer(false)();
+            // });
         });
         socket.on('enemyDiscarded', (data) => {
             clearInterval(timer);
@@ -118,8 +113,7 @@ class AccountPage extends Component {
                     pageStatus: PageStatus.requestInfo,
                     requestInfoText: 'Waiting for your enemy answer.',
                 });
-            } else {
-                console.log('startfrom-idiscarded');                
+            } else {              
                 this.startGame();
             }
         }
@@ -140,14 +134,14 @@ class AccountPage extends Component {
                 <Loading />
             );
         }
-        if(pageStatus === PageStatus.backToLogin) {
+        if(pageStatus === PageStatus.redirectToLogin) {
             return (
-                <Redirect to='/login' />
+                <Redirect to={PageURL.login} />
             );
         }
         if(pageStatus === PageStatus.redirectToGame) {
             return (
-                <Redirect to='/game' />
+                <Redirect to={PageURL.game} />
             );
         }
 
@@ -212,8 +206,9 @@ class AccountPage extends Component {
                         <h5 className="card-header">Battle Request</h5>
                         <div className="card-body">
                             <h5 className="card-title">Your enemy is <b>{enemy}</b>.</h5>
+                            <p className="card-text">Do you accept the battle?</p>
                             <p id="battleRequest-timer" className="card-text"></p>
-                            <div id="battleRequestButtons" className="container">
+                            <div id="battleRequestButtons">
                                 <button
                                     onClick={this.battleRequestAnswer(true)}
                                     id="accept"

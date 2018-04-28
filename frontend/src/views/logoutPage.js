@@ -4,6 +4,9 @@ import { fetchAjax } from '../actions/fetchAjax.js';
 
 import Loading from '../components/loading.js';
 
+import ServerURL from '../constants/serverUrl.js';
+import PageURL from '../constants/pageUrl.js';
+
 class LogoutPage extends Component {
 
     constructor(props) {
@@ -30,21 +33,14 @@ class LogoutPage extends Component {
     }
 
     componentDidMount() {
-        fetchAjax(
-            'http://localhost:80/szakdolgozat/back-end/API/auth/logout/',
-            {
-                method: 'GET',
-                credentials: 'include',
-            },
-            this.onAjaxSuccess()
-        );
+        fetchAjax(ServerURL.logout, 'GET', null, this.onAjaxSuccess());
     }
 
     render() {
         const { isLoaded, responseCode } = this.state;
         if(responseCode && (responseCode === 403 || responseCode === 405)) {
             return (
-                <Redirect to='/' />
+                <Redirect to={PageURL.index} />
             );
         }
         if(!isLoaded) {
@@ -53,7 +49,7 @@ class LogoutPage extends Component {
             );
         } else {
             return (
-                <Redirect to='/login' />
+                <Redirect to={PageURL.login} />
             );
         }
     }

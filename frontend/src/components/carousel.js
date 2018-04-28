@@ -24,12 +24,12 @@ class Carousel extends Component {
                                         <div className="carousel_background">
                                             <h3>{item.title}</h3>
                                             <p>{item.subtitle}</p>
-                                        </div>
                                         {item.links.map(function(link,j) {
                                             return (
                                                 <Link key={i+'.'+j} className="btn btn-lg btn-primary" to={link.to} role="button">{link.title}</Link>
                                             );
                                         })} 
+                                        </div>
                                     </div>
                                 </div>
                             );

@@ -6,6 +6,8 @@ import NavBar from '../components/navBar.js';
 import Form from '../components/form.js';
 import Loading from '../components/loading.js';
 
+import ServerURL from '../constants/serverUrl.js';
+import PageURL from '../constants/pageUrl.js';
 import { sigupFormFields, signupFormCheckBoxs } from '../constants/signupFormInputs.js';
 
 class SignupPage extends Component {
@@ -35,21 +37,14 @@ class SignupPage extends Component {
     }
 
     componentDidMount() {
-        fetchAjax(
-            'http://localhost:80/szakdolgozat/back-end/API/signup/',
-            {
-                method: 'GET',
-                credentials: 'include',
-            },
-            this.onAjaxSussecc()
-        );
+        fetchAjax(ServerURL.signup, 'GET', null, this.onAjaxSussecc());
     }
 
     render() {
         const { responseCode, isLoaded } = this.state;
         if (responseCode && (responseCode === 403 || responseCode === 405)) {
             return (
-                <Redirect to='/' />
+                <Redirect to={PageURL.index} />
             );
         }
         const navBarProps = {
@@ -57,8 +52,8 @@ class SignupPage extends Component {
             user: null
         };
         const formProps = {
-            fetchURL: 'signup/',
-            redirectURL: '/login',
+            fetchURL: ServerURL.signup,
+            redirectURL: PageURL.login,
             title: 'SignUp',
             submitText: 'SigUp',
             fields: sigupFormFields,

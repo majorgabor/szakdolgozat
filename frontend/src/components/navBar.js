@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 
 import NavBarLinks from './navBarLinks.js';
 
+import PageURL from '../constants/pageUrl.js';
+
 class NavBar extends Component {
 
     render() {
@@ -16,7 +18,7 @@ class NavBar extends Component {
 
         return (
             <nav className="navbar navbar-expand-md bg-dark navbar-dark">
-                <Link className="navbar-brand" to="/">Battleships game</Link>
+                <Link className="navbar-brand" to={PageURL.index}>Battleships game</Link>
                 <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
                     <span className="navbar-toggler-icon"></span>
                 </button>

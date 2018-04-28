@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import $ from 'jquery';
 import { socket } from '../actions/wsclient.js';
+import { fetchAjax } from '../actions/fetchAjax';
 import { timer, mainTimerFunc } from '../actions/timer.js';
 import { isPlacebal, markShip, shipIndicator, resetTable, randomShips, validFire, markFiredMissleResult, shipArray, isShipSank, isGameOver } from '../actions/gameLogic.js';
 
@@ -11,6 +12,9 @@ import InfoPanel from '../components/infoPanel.js';
 
 import PageStatus from '../enums/gamePageStatus.js';
 import Position from '../enums/position.js';
+
+import PageURL from '../constants/pageUrl.js';
+import ServerURL from '../constants/serverUrl.js';
 
 class GamePage extends Component {
 
@@ -39,7 +43,7 @@ class GamePage extends Component {
 
     componentWillUnmount() {
         socket.removeAllListeners();
-        clearTimeout(timer);
+        clearTimeout(timer);      
     }
     
     componentDidMount() {
@@ -104,12 +108,23 @@ class GamePage extends Component {
             });
         });
         socket.on('winnerIs', (data) => {
+            $('#bactToAccount').prop('disabled', true);
+            
+            data !== this.state.enemy ? fetchAjax(ServerURL.gameover, 'POST', JSON.stringify({isWin: true}), this.onAjaxSuccess()) :
+                                        fetchAjax(ServerURL.gameover, 'POST', JSON.stringify({isWin: false}), this.onAjaxSuccess());
+
             this.setState({
                 infoCardText: (<p>The Winner Is <strong>{data}</strong>.</p>),
                 pageStatus: PageStatus.showInfo,
             });
         });
     }
+
+    onAjaxSuccess() {
+        return() => {
+            $('#bactToAccount').prop('disabled', false);
+        }
+    };
 
     onLeftClick(field, x, y, position) {
         if (field === 'myShips') {
@@ -137,10 +152,6 @@ class GamePage extends Component {
         }
     }
 
-    hoverOutField() {
-
-    }
-
     ready() {
         clearTimeout(timer);
         socket.emit('shipsReady', null);
@@ -163,7 +174,6 @@ class GamePage extends Component {
     }
 
     backToAccountFunc() {
-        // resetTable();
         this.setState({
             enemy: null,
             pageStatus: PageStatus.backToAccount,
@@ -174,19 +184,18 @@ class GamePage extends Component {
         const { pageStatus, enemy, infoCardText, mainPanelText, myShipsPanelText, enemyAreaPanelText, youTurn } = this.state;
         if(pageStatus === PageStatus.backToLogin) {
             return(
-                <Redirect to="/login" />
+                <Redirect to={PageURL.login} />
             );
         }
         if(pageStatus === PageStatus.backToAccount) {
             return(
-                <Redirect to="/account" />
+                <Redirect to={PageURL.account} />
             );
         }
         const navBarProps = {
             page: 'game',
             user: 'username',
         };
-        //---------------
         const mainCard = (
             <div className="card offset-xl-3 col-xl-6 offset-lg-2 col-lg-8 offset-md-1 col-md-10">
                 <div className="card-body">
@@ -228,10 +237,10 @@ class GamePage extends Component {
                     <NavBar {...navBarProps} />
                     { mainCard }
                     <div className="row">
-                        <div className="card col-md-6">
+                        <div className="card col-lg-6">
                             { myShipsCard }
                         </div>
-                        <div className="card col-md-6">
+                        <div className="card col-lg-6">
                             <div className="card-body">
                                 <h5 className="card-title">Place Your Ships!</h5>
                                 <p>Rules...</p>
@@ -247,10 +256,10 @@ class GamePage extends Component {
                     <NavBar {...navBarProps} />
                     { mainCard }
                     <div className="row">
-                        <div className="card col-md-6">
+                        <div className="card col-lg-6">
                             { myShipsCard }
                         </div>
-                        <div className="card col-md-6">
+                        <div className="card col-lg-6">
                             <div className="card-body">
                                 <h5 className="card-title">Waiting for enemy.</h5>
                                 <p>Please wait while the enemy player place the ships.</p>
@@ -269,10 +278,10 @@ class GamePage extends Component {
                         name="mainPanel"
                         text="You turn. Fire a missile on the Enemy Area." />
                     <div className="row">
-                        <div className="card col-md-6">
+                        <div className="card col-lg-6">
                             { myShipsCard }
                         </div>
-                        <div className="card col-md-6">
+                        <div className="card col-lg-6">
                             { enemyAreaCard }
                         </div>
                     </div>
@@ -289,10 +298,10 @@ class GamePage extends Component {
                         name="mainPanel"
                         text="Enemy turn. Please wait." />
                     <div className="row">
-                        <div className="card col-md-6">
+                        <div className="card col-lg-6">
                             { myShipsCard }
                         </div>
-                        <div className="card col-md-6">
+                        <div className="card col-lg-6">
                             { enemyAreaCard }
                         </div>
                     </div>

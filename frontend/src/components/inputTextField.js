@@ -38,7 +38,7 @@ class InputTextField extends Component {
                         onBlur={this.onFocusOut.bind(this)}
                         value={this.state.fieldValue}/>
                 </div>
-                { error && <span id="error" className="control-label col-sm-9 offset-sm-3">{error}</span> }
+                { error && <span className="error control-label col-sm-9 offset-sm-3">{error}</span> }
             </div>
         );
     }

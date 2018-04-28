@@ -1,0 +1,18 @@
+.article {
+    text-align: center;
+
+    & > p {
+        text-align: justify;
+    }
+}
+
+.carousel {
+    & a {
+      margin: 5px;  
+    }
+}
+
+.carousel_background {
+    border-radius: 10px;
+    background-color: #343a40AA;
+}

@@ -6,15 +6,15 @@ if ($database->connect_error) {
     die("Connection failed: " . $database->connect_error);
 }
 
-//used in register.php
+//used in singup
 function insert_new_user($user){
     global $database;
     $sql = "INSERT INTO users (firstname, lastname, username, email, password, code, battles, wins, points) VALUES ('".$user["firstname"]."', '".$user["lastname"]."', '".$user["username"]."', '".$user["email"]."', '".$user["password"]."', '".$user["code"]."', 0, 0, 0)";
     return $database->query($sql);
 }
 
-//used in auth.php
-//used in register.php
+//used in login
+//used in sigup
 function is_existing_username($username){
     global $database;
     $result = [];
@@ -27,8 +27,9 @@ function is_existing_username($username){
     return false;
 }
 
-//used in auth.php
+//used in login
 //used in modify.php
+//used in changepw.php
 function get_password_for_verify($username){
     global $database;
     $result = [];
@@ -42,7 +43,7 @@ function get_password_for_verify($username){
     return NULL;
 }
 
-//used in accountinfo.php
+//used in account
 //used in modify.php
 function get_accountinfo_by_username($username){
     global $database;
@@ -71,22 +72,8 @@ function modify_user_data($username, $data){
     return $database->query($sql);
 }
 
-function get_usernames(){
-    global $database;
-    $result = [];
-    $sql = "SELECT username FROM users";
-    if($select = $database->query($sql)){
-        if($select->num_rows){
-            while($row = $select->fetch_assoc()){
-                array_push($result, $row["username"]);
-            }
-            return $result;
-        }
-    }
-    return NULL;
-}
-
-//used in methods.php
+//used in login
+//used in authentication.php
 function get_code_for_remember($username){
     global $database;
     $sql = "SELECT code FROM users WHERE username = '".$username."'";
@@ -99,12 +86,34 @@ function get_code_for_remember($username){
     return NULL;
 }
 
+function set_points_and_stat($username, $newBattles, $newWins, $newPoints) {
+    global $database;
+    $sql = "UPDATE users SET battles = '".$newBattles."', wins = '".$newWins."', points = '".$newPoints."' WHERE username = '".$username."'";
+    return $database->query($sql);
+}
+
 function get_user_by_username($username){
     global $database;
     $sql = "SELECT firstname, lastname, username, email FROM users WHERE username = '".$username."'";
     if($select = $database->query($sql)){
         if($select->num_rows){
             return $select->fetch_assoc();
+        }
+    }
+    return NULL;
+}
+
+
+function get_usernames(){
+    global $database;
+    $result = [];
+    $sql = "SELECT username FROM users";
+    if($select = $database->query($sql)){
+        if($select->num_rows){
+            while($row = $select->fetch_assoc()){
+                array_push($result, $row["username"]);
+            }
+            return $result;
         }
     }
     return NULL;

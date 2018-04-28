@@ -7,6 +7,8 @@ import InfoPanel from '../components/infoPanel.js';
 import Form from '../components/form.js';
 import Loading from '../components/loading.js';
 
+import ServerURL from '../constants/serverUrl.js';
+import PageURL from '../constants/pageUrl.js';
 import { loginFormFields, loginFormCheckBoxs } from '../constants/loginFormInputs.js';
 
 class LoginPage extends Component {
@@ -38,14 +40,7 @@ class LoginPage extends Component {
     }
 
     componentDidMount() {
-        fetchAjax(
-            'http://localhost:80/szakdolgozat/back-end/API/auth/login/',
-            {
-                method: 'GET',
-                credentials: 'include',
-            },
-            this.onAjaxSussecc()
-        );
+        fetchAjax(ServerURL.login, 'GET', null, this.onAjaxSussecc());
     }
 
     render() {
@@ -60,8 +55,8 @@ class LoginPage extends Component {
             user: null,
         };
         const formProps = {
-            fetchURL: 'auth/login/',
-            redirectURL: '/account',
+            fetchURL: ServerURL.login,
+            redirectURL: PageURL.account,
             title: 'LogIn',
             submitText: 'LogIn',
             fields: loginFormFields,

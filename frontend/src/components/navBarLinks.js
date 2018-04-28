@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
+import PageURL from '../constants/pageUrl.js';
+
 class NavBarLinks extends Component {
     
     render() {
 
         const login = (
             <li className="nav-item">
-                <Link className="nav-link" to="/login" >
+                <Link className="nav-link" to={PageURL.login} >
                     <span className="oi oi-account-login" title="login" aria-hidden="true"></span>
                 LogIn</Link>
             </li>
@@ -15,7 +17,7 @@ class NavBarLinks extends Component {
 
         const logout = (
             <li className="nav-item">
-                <Link className="nav-link" to="/logout" >
+                <Link className="nav-link" to={PageURL.logout} >
                     <span className="oi oi-account-logout" title="logout" aria-hidden="true"></span>
                 Logout</Link>
             </li>
@@ -23,7 +25,7 @@ class NavBarLinks extends Component {
 
         const signup = (
             <li className="nav-item">
-                <Link className="nav-link" to="/signup">
+                <Link className="nav-link" to={PageURL.signup}>
                     <span className="oi oi-people" title="singup" aria-hidden="true"></span>
                 Sign Up</Link>
             </li>
@@ -31,7 +33,7 @@ class NavBarLinks extends Component {
 
         const account = (
             <li className="nav-item">
-                <Link className="nav-link" to="/account" >
+                <Link className="nav-link" to={PageURL.account} >
                     <span className="oi oi-person" title="account" aria-hidden="true"></span>
                 Account</Link>
             </li>

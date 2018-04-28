@@ -1,6 +1,9 @@
 import React from 'react';
 import Form from '../components/form.js';
 
+import PageURL from './pageUrl.js';
+import ServerURL from './serverUrl.js';
+
 export const navBarProps = {
     page: 'account',
     user: null,
@@ -34,7 +37,7 @@ export const modifyFormFields = [
 ];
 
 export const modifyFormProps = {
-    fetchURL: 'account/modify.php',
+    fetchURL: ServerURL.modify,
     redirectURL: null,
     title: 'Modify Data',
     submitText: 'Modify',
@@ -64,7 +67,7 @@ const changePasswordFormFields = [
 ];
 
 const passwordChangeFormProps = {
-    fetchURL: 'account/changepw.php',
+    fetchURL: ServerURL.changepassword,
     redirectURL: null,
     title: 'Change Password',
     submitText: 'Change',

@@ -1,0 +1,29 @@
+body {
+    background-color: whitesmoke;
+}
+
+.row {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+.navbar {
+    margin-bottom: 20px;
+}
+
+.jumbotron {
+    padding: 32px;
+    border-radius: 10px;
+    background-color: #E0E0E0;
+
+    .error {
+        padding-left: 29px;
+        color: #ff0000;
+    }
+}
+
+.card {
+    padding-left: 0;
+    padding-right: 0;
+    margin-bottom: 20px;
+}

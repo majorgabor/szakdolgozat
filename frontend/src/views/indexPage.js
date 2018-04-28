@@ -6,6 +6,7 @@ import Articles from '../components/articles.js';
 import Carousel from '../components/carousel.js';
 import Loading from '../components/loading.js';
 
+import ServerURL from '../constants/serverUrl.js';
 import { carouselItems } from '../constants/indexPageConstants.js';
 
 class IndexPage extends Component {
@@ -30,14 +31,7 @@ class IndexPage extends Component {
 
 
     componentDidMount() {
-        fetchAjax(
-            'http://localhost:80/szakdolgozat/back-end/API/',
-            {
-                method: 'GET',
-                credentials: 'include',
-            },
-            this.onAjaxSussecc()
-        );
+        fetchAjax(ServerURL.index, 'GET', null, this.onAjaxSussecc());
     }
     
     render() {

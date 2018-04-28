@@ -1,17 +1,66 @@
-.fieldCell {
+.card.fieldCell {
   width: 50px;
-  height: 50px; }
-  .fieldCell.shipIsPlaceable, .fieldCell.missileTarget {
+  height: 50px;
+  margin: 0; }
+  .card.fieldCell.shipIsPlaceable, .card.fieldCell.missileTarget {
     background-color: rgba(52, 58, 64, 0.1); }
-  .fieldCell.shipNotPlaceable {
+  .card.fieldCell.shipNotPlaceable {
     background-color: rgba(244, 0, 0, 0.1); }
-  .fieldCell.missileTargetSelected {
+  .card.fieldCell.missileTargetSelected {
     border: 5px solid red; }
-  .fieldCell.ship {
+  .card.fieldCell.ship {
     background-color: #343a40; }
-  .fieldCell.miss {
+  .card.fieldCell.miss {
     background-color: blue; }
-  .fieldCell.hit {
+  .card.fieldCell.hit {
     background-color: red; }
-  .fieldCell.selectForFire {
+  .card.fieldCell.selectForFire {
     background-color: green; }
+
+#placeShipsButtons {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  text-align: center; }
+
+#myShips,
+#enemyArea {
+  width: 500px;
+  margin: 10px auto 20px auto; }
+
+body {
+  background-color: whitesmoke; }
+
+.row {
+  margin-right: 0;
+  margin-left: 0; }
+
+.navbar {
+  margin-bottom: 20px; }
+
+.jumbotron {
+  padding: 32px;
+  border-radius: 10px;
+  background-color: #E0E0E0; }
+  .jumbotron .error {
+    padding-left: 29px;
+    color: #ff0000; }
+
+.card {
+  padding-left: 0;
+  padding-right: 0;
+  margin-bottom: 20px; }
+
+.article {
+  text-align: center; }
+  .article > p {
+    text-align: justify; }
+
+.carousel a {
+  margin: 5px; }
+
+.carousel_background {
+  border-radius: 10px;
+  background-color: #343a40AA; }
+
+#battleRequestButtons .btn {
+  margin: 5px; }

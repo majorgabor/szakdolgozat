@@ -1,0 +1,46 @@
+.card.fieldCell {
+    width: 50px;
+    height: 50px;
+    margin: 0;
+    
+    &.shipIsPlaceable,
+    &.missileTarget {
+        background-color: rgba(52, 58, 64, 0.1)
+    }
+
+    &.shipNotPlaceable {
+        background-color: rgba(244, 0, 0, 0.1);
+    }
+
+    &.missileTargetSelected {
+        border: 5px solid red;
+    }
+
+    &.ship {
+        background-color: #343a40;
+    }
+    
+    &.miss {
+        background-color: blue;
+    }
+    
+    &.hit {
+        background-color: red;
+    }
+
+    &.selectForFire {
+        background-color: green;
+    }
+}
+
+#placeShipsButtons {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#myShips,
+#enemyArea, {
+    width: 500px;
+    margin: 10px auto 20px auto;
+}

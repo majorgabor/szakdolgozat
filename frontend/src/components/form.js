@@ -19,7 +19,13 @@ class Form extends Component {
             values: {}
         };
 
+        this.timeOut;
+
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.timeOut);
     }
 
     onAjaxSussecc() {
@@ -39,7 +45,7 @@ class Form extends Component {
                 }.bind(this), 5000);
             }
             if (this.state.success) {
-                setTimeout(function () {
+                this.timeOut = setTimeout(function () {
                     this.setState({
                         redirect: true,
                     });
@@ -53,16 +59,7 @@ class Form extends Component {
         this.setState({
             loading: true,
         });
-        fetchAjax(
-            'http://localhost:80/szakdolgozat/back-end/API/' + this.props.fetchURL,
-            {
-                method: 'POST',
-                credentials: 'include',
-                header: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(this.state.values)
-            },
-            this.onAjaxSussecc()
-        );
+        fetchAjax(this.props.fetchURL, 'POST', JSON.stringify(this.state.values), this.onAjaxSussecc());
         if(this.props.triggerRefresh) {
             this.props.triggerRefresh();
         }
