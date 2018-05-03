@@ -20,19 +20,31 @@ switch($_SERVER["REQUEST_METHOD"]) {
             $original_data = get_accountinfo_by_username($_SESSION["logged_in"]);
             
             if(isset($post_data->firstname) && !empty($post_data->firstname)){
-                $inputs["firstname"] =  defender($post_data->firstname);
+                if(preg_match("/^[a-zA-Z]*$/", $post_data->firstname)){
+                    $inputs["firstname"] = defender($post_data->firstname);
+                } else {
+                    $errors["firstname"] = "Only letters allowed.";
+                }
             } else {
                 $inputs["firstname"] =  $original_data["firstname"];
             }
             
             if(isset($post_data->lastname) && !empty($post_data->lastname)){
-                $inputs["lastname"] =  defender($post_data->lastname);
+                if(preg_match("/^[a-zA-Z]*$/", $post_data->lastname)){
+                    $inputs["lastname"] = defender($post_data->lastname);
+                } else {
+                    $errors["lastname"] = "Only letters allowed.";
+                }
             } else {
                 $inputs["lastname"] =  $original_data["lastname"];
             }
             
             if(isset($post_data->email) && !empty($post_data->email)){
-                $inputs["email"] =  defender($post_data->email);
+                if(filter_var($post_data->email, FILTER_VALIDATE_EMAIL)) {
+                    $inputs["email"] = defender($post_data->email);
+                } else {
+                    $errors["email"] = "Email looks invalid. Use an other one.";
+                }
             } else {
                 $inputs["email"] =  $original_data["email"];
             }
@@ -42,7 +54,6 @@ switch($_SERVER["REQUEST_METHOD"]) {
             } else {
                 $errors["password"] = "Password required.";
             }
-            // echo $post_data->password;
             
             if(!$errors){
                 if(password_verify($inputs["password"], get_password_for_verify($_SESSION["logged_in"]))){

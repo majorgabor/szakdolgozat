@@ -13,7 +13,7 @@ export function mainTimerFunc(totalTime, whereToPrint, callbackFunction) {
     $("#" + whereToPrint).text('You have '+totalTime+' seconds left.');
     timer = setInterval(function () {
         let timeLeft = counter();
-        console.log(timeLeft);
+        // console.log(timeLeft);
         $("#" + whereToPrint).text('You have '+timeLeft+' seconds left.');
         if (timeLeft === 0) {
             clearInterval(timer);

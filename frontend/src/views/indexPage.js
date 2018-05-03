@@ -7,7 +7,7 @@ import Carousel from '../components/carousel.js';
 import Loading from '../components/loading.js';
 
 import ServerURL from '../constants/serverUrl.js';
-import { carouselItems } from '../constants/indexPageConstants.js';
+import { carouselItems, articles } from '../constants/indexPageConstants.js';
 
 class IndexPage extends Component {
     
@@ -15,31 +15,31 @@ class IndexPage extends Component {
         super(props);
         this.state = {
             isLoaded: false,
-            error: null,
             user: null,
         };
     }
 
-    onAjaxSussecc() {
+    onAjaxSuccess() {
         return (response) =>  {
             this.setState({
                 isLoaded: true,
-                user: response.user
+                username: response.user
             });
         };
     }
 
 
     componentDidMount() {
-        fetchAjax(ServerURL.index, 'GET', null, this.onAjaxSussecc());
+        fetchAjax(ServerURL.index, 'GET', null, this.onAjaxSuccess());
     }
     
     render() {
+        const { isLoaded, username } = this.state;
         const navBarProps = {
             page: 'index',
-            user: this.state.user,
+            user: username,
         };
-        if(!this.state.isLoaded) {
+        if(!isLoaded) {
             return (
                 <Loading />
             );
@@ -47,7 +47,7 @@ class IndexPage extends Component {
             return (
                 <div>
                     <NavBar {...navBarProps} />
-                    <Articles />
+                    <Articles articles={articles} />
                     <Carousel carouselItems={carouselItems} /> 
                 </div>
             );

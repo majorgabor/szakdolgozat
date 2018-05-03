@@ -1,7 +1,7 @@
 let value = value || {};
 
 value.loading = 0;
-value.backToLogin = 1;
+value.redirectToLogin = 1;
 value.pageReady = 2;
 value.matchmaking = 3;
 value.battleRequest = 4;

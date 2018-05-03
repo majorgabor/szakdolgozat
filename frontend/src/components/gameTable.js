@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import $ from 'jquery';
-import classname from '../actions/classname.js';
+import { classname } from '../actions/classname.js';
 import { shipArray, enemyArea } from '../actions/gameLogic.js';
 
 import Position from '../enums/position.js';
@@ -14,8 +14,7 @@ class GameTable extends Component {
     }
     
     componentDidMount() {
-        console.log(this.props.isYouTurn);
-        const {name, leftClick, rightClick, hoverInField} = this.props;
+        const {name, isYouTurn, leftClick, rightClick, hoverInField} = this.props;
         let position = Position.horisontal;
         let thisX = 0;
         let thisY = 0;
@@ -36,6 +35,7 @@ class GameTable extends Component {
 
         $('#myShips')
         .on('mouseenter', function() {
+            console.log('enter');
             $(window).keypress(function (e) {
                 e.preventDefault();
                 position = position ? Position.horisontal : Position.vertical;
@@ -48,7 +48,7 @@ class GameTable extends Component {
             $(window).off();
         });
 
-        if(this.props.isYouTurn) {
+        if(isYouTurn) {
             $('#enemyArea').find('.row').find('.fieldCell')
             .on('click', function() {
                 $('.fieldCell').removeClass('missileTargetSelected');

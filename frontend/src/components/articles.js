@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { articles } from '../constants/indexPageConstants';
 
 class Articles extends Component {
     render() {
+        const { articles } = this.props;
         return (
             <div id="articles" className="row">
                 <div className="article offset-lg-1 col-lg-3 col-md-4">

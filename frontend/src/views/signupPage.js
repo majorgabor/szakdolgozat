@@ -5,6 +5,7 @@ import { fetchAjax } from '../actions/fetchAjax.js';
 import NavBar from '../components/navBar.js';
 import Form from '../components/form.js';
 import Loading from '../components/loading.js';
+import Modal from '../components/modal.js';
 
 import ServerURL from '../constants/serverUrl.js';
 import PageURL from '../constants/pageUrl.js';
@@ -22,7 +23,7 @@ class SignupPage extends Component {
         };
     }
 
-    onAjaxSussecc() {
+    onAjaxSuccess() {
         return (response) => {
             if (Number.isInteger(response)) {
                 this.setState({
@@ -37,7 +38,7 @@ class SignupPage extends Component {
     }
 
     componentDidMount() {
-        fetchAjax(ServerURL.signup, 'GET', null, this.onAjaxSussecc());
+        fetchAjax(ServerURL.signup, 'GET', null, this.onAjaxSuccess());
     }
 
     render() {
@@ -59,6 +60,12 @@ class SignupPage extends Component {
             fields: sigupFormFields,
             checkBoxs: signupFormCheckBoxs
         }
+        const modalProps = {
+            name: 'userTermsModal',
+            title: 'User Terms And Conditions',
+            body: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem id ipsa itaque odio, iure nulla magnam dolore iste soluta repellat ex, explicabo ea tenetur eius assumenda consequatur. A, qui expedita.',
+            footer: 'footer',
+        };
         if (!isLoaded) {
             return (
                 <Loading />
@@ -74,6 +81,7 @@ class SignupPage extends Component {
                             </div>
                         </div>
                     </div>
+                    <Modal {...modalProps}/>
                 </div>
             );
         }

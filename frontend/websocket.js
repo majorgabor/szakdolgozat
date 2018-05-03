@@ -11,15 +11,26 @@ io.on('connection', (client) => {
     console.log('new connection. %s online user', online.length);
 
     //join to matchmaking
-    client.on('joinToMatchMaking', (username) => {
-        client.username = username;
-        matchMake.push(client);
-        console.log('%s connected to the matchmaking. %s user waiting', client.username, matchMake.length);
-        sendNumberOfWaitingUser();
-        if(matchMake.length > 1 && !timeOut) {
-            timeOut = setTimeout(function() {
-                startMatchMakeing();
-            }, 3000);
+    client.on('matchMakingJoinRequest', (username) => {
+        notInMatchMaking = matchMake.every(function(_client) {
+            return _client.username !== username;
+        });
+        notInGame = pairs.every(function(_client) {
+            return _client.username !== username;
+        });
+        if(notInMatchMaking && notInGame) {
+            client.username = username;
+            matchMake.push(client);
+            console.log('%s connected to the matchmaking. %s user waiting', client.username, matchMake.length);
+            sendNumberOfWaitingUser();
+            client.emit('joined', null);
+            if(matchMake.length > 1 && !timeOut) {
+                timeOut = setTimeout(function() {
+                    startMatchMakeing();
+                }, 3000);
+            }
+        } else {
+            client.emit('alreadyJoinedError', null);            
         }
     });
 
@@ -93,79 +104,79 @@ io.on('connection', (client) => {
     });
 
     // get enemy username
-    client.on('getEnemyUsername', () => {
-        if(client.enemyPairIndex === null || !client.username) {
-            console.log('>>> exception on: getEnemyUsername');            
-            return;
-        }
-        if(!!pairs[client.enemyPairIndex]) {
-            client.emit('enemyUsername', pairs[client.enemyPairIndex].username);
+    client.on('getUsernames', () => {
+        if(pairs.indexOf(client) !== -1) {
+            if(!!pairs[client.enemyPairIndex]) {
+                client.emit('gotUsernames', client.username, pairs[client.enemyPairIndex].username);
+            } else {
+                client.emit('enemyLeftGame', null);
+            }
         } else {
-            client.emit('enemyLeftGame', null);
+            client.emit('backToAccount', null);
         }
     });
 
     // player ships are set, ready for game
     client.on('shipsReady', (data) => {
-        if(client.enemyPairIndex === null || !client.username) {
-            console.log('>>> exception on: shipsReady');
-            return;
-        }
-        if(pairs[client.enemyPairIndex].shipsReady) {
-            pairs[client.enemyPairIndex].shipsReady = null;
-            if(Math.random() >= 0.5) {
-                pairs[client.enemyPairIndex].emit('youTurn', null);
-                client.emit('youWait', null);
+        if(pairs.indexOf(client) !== -1) {
+            if(pairs[client.enemyPairIndex].shipsReady) {
+                pairs[client.enemyPairIndex].shipsReady = null;
+                if(Math.random() >= 0.5) {
+                    pairs[client.enemyPairIndex].emit('youTurn', null);
+                    client.emit('youWait', null);
+                } else {
+                    pairs[client.enemyPairIndex].emit('youWait', null);
+                    client.emit('youTurn', null);
+                }
             } else {
-                pairs[client.enemyPairIndex].emit('youWait', null);
-                client.emit('youTurn', null);
+                client.shipsReady = true;
             }
         } else {
-            client.shipsReady = true;
+            client.emit('backToAccount', null);            
         }
     });
 
     // fired missile to enemy
     client.on('fireMissle', (x, y) => {
-        if(client.enemyPairIndex === null || !client.username) {
-            console.log('>>> exception on: fireMissle');
-            return;
+        if(pairs.indexOf(client) !== -1) {
+            pairs[client.enemyPairIndex].emit('missleArrived', x, y);
+        } else {
+            client.emit('backToAccount', null);            
         }
-        pairs[client.enemyPairIndex].emit('missleArrived', x, y);
     });
 
-    // enemy ansver (MISS, HIT, SUNK) to missile
+    // enemy answer (MISS, HIT, SUNK) to missile
     client.on('missleArrivedResult', (result) => {
-        if(client.enemyPairIndex === null || !client.username) {
-            console.log('>>> exception on: missleArrivedResult');
-            return;
+        if(pairs.indexOf(client) !== -1) {
+            pairs[client.enemyPairIndex].emit('youWait', result);
+            client.emit('youTurn', result);
+        } else {
+            client.emit('backToAccount', null);            
         }
-        pairs[client.enemyPairIndex].emit('youWait', result);
-        client.emit('youTurn', result);
     });
 
     // somebody won
     client.on('gameOver', () => {
-        if(client.enemyPairIndex === null || !client.username) {
-            console.log('>>> exception on: gameOver');
-            return;
+        if(pairs.indexOf(client) !== -1) {
+            console.log('%s won a game aginst %s', pairs[client.enemyPairIndex].username, client.username);
+            pairs[client.enemyPairIndex].emit('winnerIs', pairs[client.enemyPairIndex].username);
+            client.emit('winnerIs', pairs[client.enemyPairIndex].username);
+        } else {
+            client.emit('backToAccount', null);            
         }
-        console.log('%s won a game aginst %s', pairs[client.enemyPairIndex].username, client.username);
-        pairs[client.enemyPairIndex].emit('winnerIs', pairs[client.enemyPairIndex].username);
-        client.emit('winnerIs', pairs[client.enemyPairIndex].username);
     });
 
     //leave game
     client.on('userExit', () => {
-        if(client.enemyPairIndex === null || !client.username) {
-            console.log('>>> exception on: userExit');
-            return;
+        if(pairs.indexOf(client) !== -1) {
+            console.log('%s left the game. his enemy was %s', client.username, pairs[client.enemyPairIndex].username);
+            pairs[client.enemyPairIndex].emit('enemyLeftGame', null);
+            
+            pairs.splice(client.enemyPairIndex, 1);
+            pairs.splice(pairs.indexOf(client), 1);
+        } else {
+            client.emit('backToAccount', null);            
         }
-        console.log('%s left the game. his enemy was %s', client.username, pairs[client.enemyPairIndex].username);
-        pairs[client.enemyPairIndex].emit('enemyLeftGame', null);
-        
-        pairs.splice(client.enemyPairIndex, 1);
-        pairs.splice(pairs.indexOf(client), 1);
     });
 
     //disconnect
@@ -176,10 +187,16 @@ io.on('connection', (client) => {
             matchMake.splice(matchMakingIndex, 1);
         }
         const pairsIndex = pairs.indexOf(client);
-        if(pairsIndex > -1) {
-            pairs.splice(pairsIndex, 1);
-            if(!!pairs[client.enemyPairsIndex]) {
-                pairs[client.enemyPairsIndex].emit('enemyLeftGame');
+        pairs.splice(pairsIndex, 1);
+        if(pairsIndex > -1) {            
+            if(!!pairs[client.enemyPairIndex]) {
+                pairs[client.enemyPairIndex].accepted = null;            
+                pairs[client.enemyPairIndex].emit('enemyDiscarded', null);
+                pairs[client.enemyPairIndex].emit('enemyLeftGame', null);
+                const enemyPairIndex = pairs.indexOf(client.enemyPairIndex);
+                if(enemyPairIndex > -1) {
+                    pairs.splice(enemyPairIndex, 1);
+                }
             }
         }
         console.log('%s dissconnected from the webserver', client.username || 'client');

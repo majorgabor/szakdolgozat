@@ -30,30 +30,49 @@ switch($_SERVER["REQUEST_METHOD"]) {
             $post_data = json_decode($json);
 
             if(isset($post_data->firstname) && !empty($post_data->firstname)){
-                $inputs["firstname"] = defender($post_data->firstname);
+                if(preg_match("/^[a-zA-Z]*$/", $post_data->firstname)){
+                    $inputs["firstname"] = defender($post_data->firstname);
+                } else {
+                    $errors["firstname"] = "Only letters allowed.";
+                }
             } else {
                 $errors["firstname"] = "Firstname required.";
             }
 
             if(isset($post_data->lastname) && !empty($post_data->lastname)){
-                $inputs["lastname"] = defender($post_data->lastname);
+                if(preg_match("/^[a-zA-Z]*$/", $post_data->lastname)){
+                    $inputs["lastname"] = defender($post_data->lastname);
+                } else {
+                    $errors["lastname"] = "Only letters allowed.";
+                }
             } else {
                 $errors["lastname"] = "Lastname required.";
             }
 
             if(isset($post_data->username) && !empty($post_data->username)){
-                if(!is_existing_username(defender($post_data->username))){
-                    $inputs["username"] = defender($post_data->username);
+                if(strlen($post_data->username) > 5){
+                    if(preg_match("/^[a-zA-Z1-9_]*$/", $post_data->username)){
+                        if(!is_existing_username(defender($post_data->username))){
+                            $inputs["username"] = defender($post_data->username);
+                        } else {
+                            $errors["username"] = "Username already exist.";
+                        }
+                    } else {
+                        $errors["username"] = "Only letters, numbers and underline allowed.";
+                    }
                 } else {
-                    $errors["username"] = "Username already exist.";
+                    $errors["username"] = "At least 6 character long username required.";
                 }
             } else {
                 $errors["username"] = "Unique username required.";
             }
 
             if(isset($post_data->email) && !empty($post_data->email)){
-                $inputs["email"] = defender($post_data->email);
-                
+                if(filter_var($post_data->email, FILTER_VALIDATE_EMAIL)) {
+                    $inputs["email"] = defender($post_data->email);
+                } else {
+                    $errors["email"] = "Email looks invalid. Use an other one.";
+                }
             } else {
                 $errors["email"] = "Email required.";
             }

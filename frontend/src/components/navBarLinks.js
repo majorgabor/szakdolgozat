@@ -26,7 +26,7 @@ class NavBarLinks extends Component {
         const signup = (
             <li className="nav-item">
                 <Link className="nav-link" to={PageURL.signup}>
-                    <span className="oi oi-people" title="singup" aria-hidden="true"></span>
+                    <span className="oi oi-people" title="signup" aria-hidden="true"></span>
                 Sign Up</Link>
             </li>
         );
@@ -38,19 +38,35 @@ class NavBarLinks extends Component {
                 Account</Link>
             </li>
         );
+
+        const scoreboard = (
+            <li className="nav-item">
+                <Link className="nav-link" to={PageURL.scoreboard} >
+                    <span className="oi oi-person" title="scoreboard" aria-hidden="true"></span>
+                Scoreboard</Link>
+            </li>
+        );
+
         const { page, loggedin } = this.props;
         return (
             <ul className="navbar-nav ml-auto">
+                { page !== 'game' && page !== 'scoreboard' && scoreboard }
+                
                 { page === 'index' && !loggedin && login }
                 { page === 'index' && !loggedin && signup }
-                { page === 'index' && loggedin && account }
-                { page === 'index' && loggedin && logout }
+                { page === 'index' && !!loggedin && account }
+                { page === 'index' && !!loggedin && logout }
 
                 { page === 'login' && signup }
                 
                 { page === 'signup' && login }
 
                 { page === 'account' && logout }
+
+                { page === 'scoreboard' && !loggedin && login }
+                { page === 'scoreboard' && !loggedin && signup }
+                { page === 'scoreboard' && !!loggedin && account }
+                { page === 'scoreboard' && !!loggedin && logout }
             </ul>
         );
     }

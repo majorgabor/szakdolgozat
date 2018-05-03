@@ -8,10 +8,10 @@ import PageURL from '../constants/pageUrl.js';
 class NavBar extends Component {
 
     render() {
-        const username = this.props.user ? (
+        const username = !!this.props.user ? (
             <ul className="navbar-nav">
                 <li className="nav-item">
-                    <span className="navbar-text"><b>{'Logged in as ' + this.props.user}</b></span>
+                    <span id="username" className="navbar-text"><b>{'Logged in as ' + this.props.user}</b></span>
                 </li>
             </ul>
         ) : null;

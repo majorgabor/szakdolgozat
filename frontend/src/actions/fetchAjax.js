@@ -7,14 +7,14 @@ function handleResponse(response) {
         });
 
     } else {
-        console.log('status number');
+        // console.log('status number', response.status);
         return response.status;
     }
 }
 
 
 export function fetchAjax(urlPath, method, body, success) {
-    console.log('fetching data');
+    // console.log('fetching data');
 
     fetch(
         'http://localhost:80/szakdolgozat/back-end/API/' + urlPath,

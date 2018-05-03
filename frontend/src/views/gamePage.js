@@ -22,6 +22,7 @@ class GamePage extends Component {
         super(props);
         this.state = {
             pageStatus: PageStatus.placeShips,
+            myUsername: null,
             enemy: null,
             mainPanelText: null,
             myShipsPanelText: ' ',
@@ -47,21 +48,24 @@ class GamePage extends Component {
     }
     
     componentDidMount() {
-        $('#close-gameInfo').hide();//!!!
+        // $('#close-gameInfo').hide();//!!!
         $('#ready').prop("disabled", true);
         $('#reset').prop("disabled", true);
         if(!this.state.enemy) {
-            socket.emit('getEnemyUsername', null);
-            socket.on('enemyUsername', (data) =>{
+            socket.emit('getUsernames', null);
+            socket.on('gotUsernames', (me, enemy) =>{
                 this.setState({
-                    enemy: data,
+                    myUsername: me,
+                    enemy: enemy,
                 });
             });
-            // mainTimerFunc(20, 'myShipsPanel-timer', () => {
-            //     this.exit();
-            // });
-
+            mainTimerFunc(45, 'myShipsPanel-timer', () => {
+                this.exit();
+            });
         }
+        socket.on('backToAccount', () => {
+            this.backToAccountFunc();
+        });
         socket.on('youTurn', (result) => {
             this.setState({
                 myShipsPanelText: !!result ? 'The enemy '+result+' your ship.' : null,
@@ -69,9 +73,9 @@ class GamePage extends Component {
                 youTurn: true,
                 pageStatus: PageStatus.youTurn,
             });
-            // mainTimerFunc(15, 'enemyAreaPanel-timer', () => {
-            //     this.exit();
-            // });
+            mainTimerFunc(15, 'enemyAreaPanel-timer', () => {
+                this.exit();
+            });
             $('#fire').prop('disabled', true);
         });
         socket.on('youWait', (result) => {
@@ -103,7 +107,7 @@ class GamePage extends Component {
         });
         socket.on('enemyLeftGame', () => {
             this.setState({
-                infoCardText: (<p>Your enemy left the game.<br />Please wait.</p>),
+                infoCardText: (<p>Your enemy left the game.</p>),
                 pageStatus: PageStatus.showInfo,
             });
         });
@@ -181,7 +185,7 @@ class GamePage extends Component {
     }
     
     render() {
-        const { pageStatus, enemy, infoCardText, mainPanelText, myShipsPanelText, enemyAreaPanelText, youTurn } = this.state;
+        const { pageStatus, myUsername, enemy, infoCardText, mainPanelText, myShipsPanelText, enemyAreaPanelText, youTurn } = this.state;
         if(pageStatus === PageStatus.backToLogin) {
             return(
                 <Redirect to={PageURL.login} />
@@ -194,10 +198,10 @@ class GamePage extends Component {
         }
         const navBarProps = {
             page: 'game',
-            user: 'username',
+            user: myUsername,
         };
         const mainCard = (
-            <div className="card offset-xl-3 col-xl-6 offset-lg-2 col-lg-8 offset-md-1 col-md-10">
+            <div className="card offset-xl-2 col-xl-8">
                 <div className="card-body">
                     <h5 className="card-title">{'Your enemy is '+enemy}</h5>
                     <p className="card-text">If you leave the game, your enemy wins.</p>
@@ -237,10 +241,10 @@ class GamePage extends Component {
                     <NavBar {...navBarProps} />
                     { mainCard }
                     <div className="row">
-                        <div className="card col-lg-6">
+                        <div className="card col-xl-6">
                             { myShipsCard }
                         </div>
-                        <div className="card col-lg-6">
+                        <div className="card col-xl-6">
                             <div className="card-body">
                                 <h5 className="card-title">Place Your Ships!</h5>
                                 <p>Rules...</p>
@@ -256,10 +260,10 @@ class GamePage extends Component {
                     <NavBar {...navBarProps} />
                     { mainCard }
                     <div className="row">
-                        <div className="card col-lg-6">
+                        <div className="card col-xl-6">
                             { myShipsCard }
                         </div>
-                        <div className="card col-lg-6">
+                        <div className="card col-xl-6">
                             <div className="card-body">
                                 <h5 className="card-title">Waiting for enemy.</h5>
                                 <p>Please wait while the enemy player place the ships.</p>
@@ -278,10 +282,10 @@ class GamePage extends Component {
                         name="mainPanel"
                         text="You turn. Fire a missile on the Enemy Area." />
                     <div className="row">
-                        <div className="card col-lg-6">
+                        <div className="card col-xl-6">
                             { myShipsCard }
                         </div>
-                        <div className="card col-lg-6">
+                        <div className="card col-xl-6">
                             { enemyAreaCard }
                         </div>
                     </div>
@@ -298,10 +302,10 @@ class GamePage extends Component {
                         name="mainPanel"
                         text="Enemy turn. Please wait." />
                     <div className="row">
-                        <div className="card col-lg-6">
+                        <div className="card col-xl-6">
                             { myShipsCard }
                         </div>
-                        <div className="card col-lg-6">
+                        <div className="card col-xl-6">
                             { enemyAreaCard }
                         </div>
                     </div>

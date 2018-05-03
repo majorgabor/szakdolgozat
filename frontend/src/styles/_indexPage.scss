@@ -13,6 +13,15 @@
 }
 
 .carousel_background {
+    padding: 20px;
     border-radius: 10px;
-    background-color: #343a40AA;
+    background-color: #343a40BA;
+}
+
+.loadingPinnerContainer{
+    text-align: center;
+
+    .loadingSpinner{
+        transform: scaleX(-1);
+    }
 }

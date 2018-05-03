@@ -86,10 +86,27 @@ function get_code_for_remember($username){
     return NULL;
 }
 
+//used in game
 function set_points_and_stat($username, $newBattles, $newWins, $newPoints) {
     global $database;
     $sql = "UPDATE users SET battles = '".$newBattles."', wins = '".$newWins."', points = '".$newPoints."' WHERE username = '".$username."'";
     return $database->query($sql);
+}
+
+//used in scoreboard
+function get_score_board_info_order_by_($order) {
+    global $database;
+    $result = [];
+    $sql = "SELECT username, battles, wins, points FROM  users ORDER BY ".$order." DESC LIMIT 20";
+    if($select = $database->query($sql)){
+        if($select->num_rows){
+            while($row = $select->fetch_assoc()){
+                array_push($result, $row);
+            }
+            return $result;
+        }
+    }
+    return NULL;
 }
 
 function get_user_by_username($username){

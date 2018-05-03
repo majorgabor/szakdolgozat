@@ -24,7 +24,7 @@ class LoginPage extends Component {
         }
     }
 
-    onAjaxSussecc() {
+    onAjaxSuccess() {
         return (response) => {
             if (Number.isInteger(response)) {
                 this.setState({
@@ -40,7 +40,7 @@ class LoginPage extends Component {
     }
 
     componentDidMount() {
-        fetchAjax(ServerURL.login, 'GET', null, this.onAjaxSussecc());
+        fetchAjax(ServerURL.login, 'GET', null, this.onAjaxSuccess());
     }
 
     render() {

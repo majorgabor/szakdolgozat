@@ -6,7 +6,7 @@ class InputCheckBox extends Component {
         super(props);
 
         this.state = {
-            boxValue: this.props.initalBoxValue
+            boxValue: null,
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -37,11 +37,17 @@ class InputCheckBox extends Component {
                             onBlur={this.onFocusOut.bind(this)}/>
                         <label htmlFor={boxName}>
                             {boxText}
-                            { link && <a href={link.href} data-toggle={link.modal.toggle} data-target={link.modal.target}>{' '+link.text}</a> }
+                            { !!link &&
+                                <a
+                                    href={link.href}
+                                    data-toggle={ !!link.modal ? link.modal.toggle : null }
+                                    data-target={ !!link.modal ? link.modal.target : null }>
+                                        {' '+link.text}
+                                </a> }
                         </label>
                     </div>
                 </div>
-                { error && <span className="error control-label col-sm-9 offset-sm-3">{error}</span> }
+                { !!error && <span className="error control-label col-sm-9 offset-sm-3">{error}</span> }
             </div>
         );
     }

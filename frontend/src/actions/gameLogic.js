@@ -13,7 +13,7 @@ for(let i = 0; i < 10; i++) {
     }
 }
 
-let placeinfShipId = 2;
+let placeinfShipId = 7;
 const shipSize = [null, 1, 1, 2, 2, 3, 4, 5];
 
 export function isPlacebal(x, y, orientation){
@@ -134,7 +134,7 @@ export function shipIndicator(x, y, orientation, isValid) {
 export function resetTable() {
     $('#reset').prop("disabled", true);
     $('#ready').prop("disabled", true);
-    placeinfShipId = 2;
+    placeinfShipId = 7;
     for (let i = 0; i < 10; i++) {
         for (let j = 0; j < 10; j++) {
             shipArray[i][j] = null;

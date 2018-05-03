@@ -57,7 +57,23 @@ class AccountPage extends Component {
     }
 
     componentDidMount() {
-        this.refresh()
+        this.refresh();
+        socket.on('joined', () => {
+            this.setState({
+                pageStatus: PageStatus.matchmaking,
+            });
+        });
+        socket.on('alreadyJoinedError', () => {
+            this.setState({
+                requestInfoText: 'You have already joined to the match making or to the game.',
+                pageStatus: PageStatus.requestInfo,
+            });
+            setTimeout(function() {
+                this.setState({
+                    pageStatus: PageStatus.pageReady,
+                });
+            }.bind(this), 2500);
+        });
         socket.on('numberOfWaitingUser', (data) => {
             this.setState({
                 matchMakingCounter: data,
@@ -68,9 +84,9 @@ class AccountPage extends Component {
                 enemy: data,
                 pageStatus: PageStatus.battleRequest,
             });
-            // mainTimerFunc(10, 'battleRequest-timer', () => {
-            //     this.battleRequestAnswer(false)();
-            // });
+            mainTimerFunc(10, 'battleRequest-timer', () => {
+                this.battleRequestAnswer(false)();
+            });
         });
         socket.on('enemyDiscarded', (data) => {
             clearInterval(timer);
@@ -79,7 +95,6 @@ class AccountPage extends Component {
                 pageStatus: PageStatus.requestInfo,
             });
             setTimeout(function() {
-                console.log('startfrom-enemydiscarded');
                 this.startGame();
             }.bind(this), 2500);
         });
@@ -91,10 +106,7 @@ class AccountPage extends Component {
     }
 
     startGame() {
-        this.setState({
-            pageStatus: PageStatus.matchmaking,
-        });
-        socket.emit('joinToMatchMaking', this.state.userInfo.username);
+        socket.emit('matchMakingJoinRequest', this.state.userInfo.username);
     }
 
     leaveMatchMaking() {
@@ -123,7 +135,7 @@ class AccountPage extends Component {
         let setted = AccountPageConstants.modifyFormFields;
         setted[0].placeholder = this.state.userInfo.firstname;
         setted[1].placeholder = this.state.userInfo.lastname;
-        setted[2].placeholder = this.state.userInfo.username;        
+        setted[2].placeholder = this.state.userInfo.email;        
         return setted;
     }
 
@@ -165,7 +177,7 @@ class AccountPage extends Component {
             return (
                 <div id="account">
                     <NavBar {...AccountPageConstants.navBarProps} />
-                    <div className="card offset-xl-2 col-xl-8 offset-gl-1 col-gl-10">
+                    <div className="card offset-xl-2 col-xl-8 offset-lg-1 col-lg-10">
                         <div className="card-body">
                             <button
                                 onClick={this.startGame}
@@ -183,7 +195,7 @@ class AccountPage extends Component {
             return (
                 <div id="account">
                     <NavBar {...AccountPageConstants.navBarProps} />
-                    <div className="card offset-xl-2 col-xl-8 offset-gl-1 col-gl-10">
+                    <div className="card offset-xl-2 col-xl-8 offset-lg-1 col-lg-10">
                         <h5 className="card-header">Match Making</h5>
                         <div className="card-body">
                             <h5 className="card-title">There are {matchMakingCounter-1} other user waiting for matchmaking.</h5>
@@ -202,7 +214,7 @@ class AccountPage extends Component {
             return (
                 <div id="account">
                     <NavBar {...AccountPageConstants.navBarProps} />
-                    <div className="card offset-xl-2 col-xl-8 offset-gl-1 col-gl-10">
+                    <div className="card offset-xl-2 col-xl-8 offset-lg-1 col-lg-10">
                         <h5 className="card-header">Battle Request</h5>
                         <div className="card-body">
                             <h5 className="card-title">Your enemy is <b>{enemy}</b>.</h5>
@@ -233,7 +245,7 @@ class AccountPage extends Component {
             return (
                 <div id="account">
                     <NavBar {...AccountPageConstants.navBarProps} />
-                    <div className="card offset-xl-2 col-xl-8 offset-gl-1 col-gl-10">
+                    <div className="card offset-xl-2 col-xl-8 offset-lg-1 col-lg-10">
                         <h5 className="card-header">{requestInfoText}</h5>
                         <div className="card-body">
                             <p className="card-text">Please wait.</p>

@@ -7,14 +7,14 @@ class DataPanel extends Component {
         return (
                 <table className="table">
                     <tbody>
-                    {Object.keys(data).map(function(key, i) {
+                    { !! data && Object.keys(data).map(function(key, i) {
                         return (
                             <tr key={i}>
                                 <th>{key}</th>
                                 <td>{data[key]}</td>
                             </tr>
                         );
-                    })}
+                    }) }
                 </tbody>
             </table>
         );
