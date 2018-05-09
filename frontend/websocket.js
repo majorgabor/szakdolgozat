@@ -145,7 +145,7 @@ io.on('connection', (client) => {
         }
     });
 
-    // enemy answer (MISS, HIT, SUNK) to missile
+    // enemy answer (MISSED, HIT, SUNK) to missile
     client.on('missleArrivedResult', (result) => {
         if(pairs.indexOf(client) !== -1) {
             pairs[client.enemyPairIndex].emit('youWait', result);

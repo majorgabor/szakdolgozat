@@ -24,10 +24,10 @@ describe('index page', () => {
 
         beforeAll(() => {
             shipArray[2][7] = 5;
-            shipArray[4][2] = 'miss';
+            shipArray[4][2] = 'missed';
             shipArray[5][3] = 'hit';
 
-            enemyArea[8][5] = 'miss';
+            enemyArea[8][5] = 'missed';
             enemyArea[3][7] = 'hit';
             enemyArea[6][1] = 'sank';
         });
@@ -55,11 +55,11 @@ describe('index page', () => {
                 name: 'myShips',
             };
             shipArray[2][7] = 5;
-            shipArray[4][2] = 'miss';
+            shipArray[4][2] = 'missed';
             shipArray[5][3] = 'hit';
             const wrapper = shallow(<GameTable {...localProps}/>);
             expect(wrapper.find('.ship[data-x=2][data-y=7]')).to.exist;
-            expect(wrapper.find('.miss[data-x=4][data-y=2]')).to.exist;
+            expect(wrapper.find('.missed[data-x=4][data-y=2]')).to.exist;
             expect(wrapper.find('.hit[data-x=5][data-y=3]')).to.exist;
         });
 
@@ -70,7 +70,7 @@ describe('index page', () => {
             };
             
             const wrapper = shallow(<GameTable {...localProps}/>);
-            expect(wrapper.find('.miss[data-x=8][data-y=5]')).to.exist;
+            expect(wrapper.find('.missed[data-x=8][data-y=5]')).to.exist;
             expect(wrapper.find('.hit[data-x=3][data-y=7]')).to.exist;
             expect(wrapper.find('.hit[data-x=6][data-y=1]')).to.exist;
         });

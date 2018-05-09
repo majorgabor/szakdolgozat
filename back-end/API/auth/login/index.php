@@ -56,7 +56,7 @@ switch($_SERVER["REQUEST_METHOD"]) {
                             "username" => $inputs["username"],
                             "code" => password_hash(get_code_for_remember($inputs["username"]), PASSWORD_DEFAULT)
                         ];
-                        setcookie("remember", serialize($cookie), time() + 86400, "/");
+                        setcookie("remember", serialize($cookie), time() + (86400 * 30), "/");
                     }        
                     $_SESSION["logged_in"] = $inputs["username"];
                     $response["success"] = true;

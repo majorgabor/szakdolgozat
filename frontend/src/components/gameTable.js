@@ -35,13 +35,15 @@ class GameTable extends Component {
 
         $('#myShips')
         .on('mouseenter', function() {
-            console.log('enter');
             $(window).keypress(function (e) {
-                e.preventDefault();
-                position = position ? Position.horisontal : Position.vertical;
-                $('.fieldCell').removeClass('shipIsPlaceable');
-                $('.fieldCell').removeClass('shipNotPlaceable');
-                hoverInField(name, thisX, thisY, position);
+                if(e.charCode === 32) {
+                    console.log('enter');
+                    e.preventDefault();
+                    position = position ? Position.horisontal : Position.vertical;
+                    $('.fieldCell').removeClass('shipIsPlaceable');
+                    $('.fieldCell').removeClass('shipNotPlaceable');
+                    hoverInField(name, thisX, thisY, position);
+                }
             });
         })
         .on('mouseleave', function() {
@@ -64,7 +66,15 @@ class GameTable extends Component {
         } else {
             $('#enemyArea').find('.row').find('.fieldCell').off();
         }
+
+        this.mobileChangePosition = function() {
+            position = position ? Position.horisontal : Position.vertical;
+            $('.fieldCell').removeClass('shipIsPlaceable');
+            $('.fieldCell').removeClass('shipNotPlaceable');
+        };
+        $('#mobileButton').hide();
     }
+
 
     render() {
         const { name } = this.props;
@@ -80,9 +90,9 @@ class GameTable extends Component {
                                     className={classname(
                                         'card fieldCell',
                                         name === 'myShips' && !!shipArray[i][j] && 'ship',
-                                        name === 'myShips' && shipArray[i][j] === 'miss' && 'miss',
+                                        name === 'myShips' && shipArray[i][j] === 'missed' && 'missed',
                                         name === 'myShips' && shipArray[i][j] === 'hit' && 'hit',
-                                        name === 'enemyArea' && enemyArea[i][j] === 'miss' && 'miss',
+                                        name === 'enemyArea' && enemyArea[i][j] === 'missed' && 'missed',
                                         name === 'enemyArea' && (enemyArea[i][j] === 'hit' || enemyArea[i][j] === 'sank') && 'hit',
                                     )}
                                     data-x={i}
@@ -94,6 +104,17 @@ class GameTable extends Component {
                         </div>
                     );
                 })}
+                { name === 'myShips' && <div className="d-block d-md-none">
+                        <br />
+                        <button
+                            onClick={this.mobileChangePosition}
+                            id="mobileButton"
+                            type="button"
+                            className="btn btn-primary">
+                                Change Position
+                        </button>
+                    </div>
+                }
             </div>
         );
     }

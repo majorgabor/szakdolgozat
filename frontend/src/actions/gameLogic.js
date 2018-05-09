@@ -140,7 +140,7 @@ export function resetTable() {
             shipArray[i][j] = null;
             enemyArea[i][j] = null;
             $('.fieldCell[data-x='+ i +'][data-y='+ j +']').removeClass('ship');
-            $('.fieldCell[data-x='+ i +'][data-y='+ j +']').removeClass('miss');
+            $('.fieldCell[data-x='+ i +'][data-y='+ j +']').removeClass('missed');
             $('.fieldCell[data-x='+ i +'][data-y='+ j +']').removeClass('hit');
         }
     }

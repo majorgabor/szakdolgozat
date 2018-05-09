@@ -81,7 +81,7 @@ export const varticalPillsProps = [
         body: null,
     },
     {
-        name: 'statistic',
+        name: 'statistics',
         body: null,
     },
     {

@@ -14,7 +14,7 @@ switch($_SERVER["REQUEST_METHOD"]) {
             unset($_SESSION["logged_in"]);
             setcookie("remember", "", time() - 3600, "/");
             save_to_flash([
-                "message" => "Sucsesfully logged out."
+                "message" => "Successfully logged out."
             ]);
             http_response_code(200);            
         } else {

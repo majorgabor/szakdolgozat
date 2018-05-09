@@ -198,7 +198,7 @@ class AccountPage extends Component {
                     <div className="card offset-xl-2 col-xl-8 offset-lg-1 col-lg-10">
                         <h5 className="card-header">Match Making</h5>
                         <div className="card-body">
-                            <h5 className="card-title">There are {matchMakingCounter-1} other user waiting for matchmaking.</h5>
+                            <h5 className="card-title">There are {matchMakingCounter-1} other user waiting for match making.</h5>
                             <p className="card-text">Please wait for yout enemy.</p>
                             <button
                                 onClick={this.leaveMatchMaking}

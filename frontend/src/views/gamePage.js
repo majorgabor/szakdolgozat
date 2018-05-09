@@ -48,10 +48,10 @@ class GamePage extends Component {
     }
     
     componentDidMount() {
-        // $('#close-gameInfo').hide();//!!!
         $('#ready').prop("disabled", true);
         $('#reset').prop("disabled", true);
         if(!this.state.enemy) {
+            $('#mobileButton').show();
             socket.emit('getUsernames', null);
             socket.on('gotUsernames', (me, enemy) =>{
                 this.setState({
@@ -73,9 +73,9 @@ class GamePage extends Component {
                 youTurn: true,
                 pageStatus: PageStatus.youTurn,
             });
-            mainTimerFunc(15, 'enemyAreaPanel-timer', () => {
-                this.exit();
-            });
+            // mainTimerFunc(15, 'enemyAreaPanel-timer', () => {
+            //     this.exit();
+            // });
             $('#fire').prop('disabled', true);
         });
         socket.on('youWait', (result) => {
@@ -90,8 +90,8 @@ class GamePage extends Component {
         });
         socket.on('missleArrived', (x, y) => {
             const shipId = shipArray[x][y];
-            let result = 'MISS';
-            shipArray[x][y] = 'miss';
+            let result = 'MISSED';
+            shipArray[x][y] = 'missed';
             if(!!shipId) {
                 result = 'HIT';
                 shipArray[x][y] = 'hit';
@@ -157,6 +157,7 @@ class GamePage extends Component {
     }
 
     ready() {
+        $('#mobileButton').hide();
         clearTimeout(timer);
         socket.emit('shipsReady', null);
         this.setState({

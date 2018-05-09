@@ -10,7 +10,7 @@
     border: 5px solid red; }
   .card.fieldCell.ship {
     background-color: #343a40; }
-  .card.fieldCell.miss {
+  .card.fieldCell.missed {
     background-color: blue; }
   .card.fieldCell.hit {
     background-color: red; }
@@ -50,6 +50,9 @@ body {
   padding-left: 0;
   padding-right: 0;
   margin-bottom: 20px; }
+
+.checkbox label {
+  margin-left: 10px; }
 
 .article {
   text-align: center; }
